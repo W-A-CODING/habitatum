@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import GoogleApiToken
 
-# Register your models here.
+@admin.register(GoogleApiToken)
+class GoogleApiTokenAdmin(admin.ModelAdmin):
+    list_display = ['user', 'fecha_actualizacion']
