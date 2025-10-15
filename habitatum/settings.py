@@ -126,14 +126,36 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de Email (para notificaciones)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Para desarrollo
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Para producción
+# Para desarrollo (muestra emails en consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Para producción (descomentar estas líneas y comentar la de arriba)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'tu_email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'tu_contraseña'
+# EMAIL_HOST_USER = 'habitatum3@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'  # NO uses tu contraseña normal
 
 # URL de redirección después del login
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/calendario/'
+
+# Email del administrador que recibirá las notificaciones
+ADMIN_EMAIL = 'habitatum3@gmail.com'
+
+# Email desde el cual se envían los correos
+DEFAULT_FROM_EMAIL = 'habitatum3@gmail.com'
+
+# Configuración de Google OAuth2
+# Estas credenciales se obtienen de Google Cloud Console
+GOOGLE_OAUTH_CREDENTIALS = {
+    "web": {
+        "client_id": "TU_CLIENT_ID.apps.googleusercontent.com",
+        "client_secret": "TU_CLIENT_SECRET",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "redirect_uris": ["http://127.0.0.1:8000/integraciones/google/callback/"]
+    }
+}
