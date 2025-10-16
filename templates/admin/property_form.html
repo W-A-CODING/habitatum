@@ -1,0 +1,316 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}{{ 'Editar' if property else 'Nueva' }} Propiedad - Panel Admin{% endblock %}
+
+{% block page_title %}{{ 'Editar' if property else 'Nueva' }} Propiedad{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .form-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--beige);
+    }
+    
+    .form-header h3 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-header p {
+        color: var(--gris-medio);
+    }
+    
+    .form-errors {
+        background-color: #f8d7da;
+        border: 1px solid var(--rojo);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #721c24;
+    }
+    
+    .form-errors strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-errors ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .form-errors li {
+        margin-bottom: 0.25rem;
+    }
+    
+    .property-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 1.5rem;
+        background-color: var(--beige);
+        border-radius: 8px;
+    }
+    
+    .form-section h4 {
+        color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-group label .required {
+        color: var(--naranja);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem;
+        border: 2px solid var(--azul-medio);
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--azul-claro);
+    }
+    
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-group .help-text {
+        font-size: 0.75rem;
+        color: var(--gris-medio);
+        margin-top: 0.25rem;
+    }
+    
+    .current-image {
+        margin-top: 0.5rem;
+        padding: 1rem;
+        background-color: var(--blanco);
+        border-radius: 8px;
+        border: 2px dashed var(--azul-medio);
+    }
+    
+    .current-image img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+    }
+    
+    .current-image p {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+    }
+    
+    .form-actions button,
+    .form-actions a {
+        flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <h3>
+            {% if property %}
+            ✏️ Editar Propiedad
+            {% else %}
+            ➕ Nueva Propiedad
+            {% endif %}
+        </h3>
+        <p>
+            {% if property %}
+            Actualiza la información de la propiedad
+            {% else %}
+            Completa todos los campos para agregar una nueva propiedad al catálogo
+            {% endif %}
+        </p>
+    </div>
+    
+    <!-- Errores del Formulario -->
+    {% if form.errors %}
+    <div class="form-errors">
+        <strong>⚠️ Por favor corrige los siguientes errores:</strong>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Formulario -->
+    <form method="post" enctype="multipart/form-data" class="property-form">
+        {% csrf_token %}
+        
+        <!-- Información Básica -->
+        <div class="form-section">
+            <h4>📝 Información Básica</h4>
+            
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label for="{{ form.nombre.id_for_label }}">
+                        {{ form.nombre.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.nombre }}
+                    <span class="help-text">Nombre descriptivo de la propiedad</span>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="{{ form.descripcion.id_for_label }}">
+                        {{ form.descripcion.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.descripcion }}
+                    <span class="help-text">Describe las características principales de la propiedad</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ubicación y Tipo -->
+        <div class="form-section">
+            <h4>📍 Ubicación y Tipo</h4>
+            
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label for="{{ form.ubicacion.id_for_label }}">
+                        {{ form.ubicacion.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.ubicacion }}
+                    <span class="help-text">Dirección completa o zona de la propiedad</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.tipo_inmueble.id_for_label }}">
+                        {{ form.tipo_inmueble.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.tipo_inmueble }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.metros_cuadrados.id_for_label }}">
+                        {{ form.metros_cuadrados.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.metros_cuadrados }}
+                    <span class="help-text">Superficie en metros cuadrados</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Precio e Imágenes -->
+        <div class="form-section">
+            <h4>💰 Precio e Imágenes</h4>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.precio.id_for_label }}">
+                        {{ form.precio.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.precio }}
+                    <span class="help-text">Precio en pesos mexicanos (MXN)</span>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="{{ form.imagen_principal.id_for_label }}">
+                        {{ form.imagen_principal.label }}
+                    </label>
+                    {{ form.imagen_principal }}
+                    <span class="help-text">Imagen principal de la propiedad (JPG, PNG, máx 5MB)</span>
+                    
+                    {% if property and property.imagen_principal %}
+                    <div class="current-image">
+                        <img src="{{ property.imagen_principal.url }}" alt="Imagen actual">
+                        <p>📸 Imagen actual - Sube una nueva para reemplazarla</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Acciones -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+                {% if property %}
+                💾 Guardar Cambios
+                {% else %}
+                ✅ Crear Propiedad
+                {% endif %}
+            </button>
+            <a href="{% url 'dashboard:property_list' %}" class="btn btn-secondary">
+                ❌ Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

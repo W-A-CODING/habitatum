@@ -1,0 +1,298 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Gestión de Propiedades - Panel Admin{% endblock %}
+
+{% block page_title %}Gestión de Propiedades{% endblock %}
+
+{% block extra_css %}
+<style>
+    .properties-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .properties-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .properties-table-container {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .properties-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .properties-table thead {
+        background-color: var(--azul-oscuro);
+        color: var(--blanco);
+    }
+    
+    .properties-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+    }
+    
+    .properties-table tbody tr {
+        border-bottom: 1px solid var(--beige);
+        transition: background-color 0.2s ease;
+    }
+    
+    .properties-table tbody tr:hover {
+        background-color: var(--beige);
+    }
+    
+    .properties-table td {
+        padding: 1rem;
+        color: var(--gris-medio);
+    }
+    
+    .property-thumbnail {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    .property-name {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .property-location {
+        font-size: 0.875rem;
+        color: var(--gris-medio);
+    }
+    
+    .property-price {
+        color: var(--naranja);
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+    
+    .property-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background-color: var(--azul-medio);
+        color: var(--azul-oscuro);
+    }
+    
+    .property-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-icon {
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-view {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+    }
+    
+    .btn-view:hover {
+        background-color: var(--azul-oscuro);
+    }
+    
+    .btn-edit {
+        background-color: var(--verde);
+        color: var(--blanco);
+    }
+    
+    .btn-edit:hover {
+        background-color: #218838;
+    }
+    
+    .btn-delete {
+        background-color: var(--rojo);
+        color: var(--blanco);
+    }
+    
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+    
+    .no-properties {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gris-medio);
+    }
+    
+    .no-properties-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .no-properties h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .properties-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .properties-table-container {
+            overflow-x: auto;
+        }
+        
+        .properties-table {
+            min-width: 800px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header con Botón -->
+<div class="properties-header">
+    <div>
+        <h3 style="color: var(--azul-oscuro); font-size: 1.5rem; margin-bottom: 0.5rem;">
+            Todas las Propiedades
+        </h3>
+        <p style="color: var(--gris-medio);">Gestiona el catálogo completo de propiedades</p>
+    </div>
+    <a href="{% url 'dashboard:property_create' %}" class="btn btn-primary">
+        ➕ Agregar Nueva Propiedad
+    </a>
+</div>
+
+<!-- Estadísticas -->
+<div class="properties-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_propiedades }}</div>
+        <div class="stat-label">Total de Propiedades</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ total_casas }}</div>
+        <div class="stat-label">Casas</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ total_departamentos }}</div>
+        <div class="stat-label">Departamentos</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ total_terrenos }}</div>
+        <div class="stat-label">Terrenos</div>
+    </div>
+</div>
+
+<!-- Tabla de Propiedades -->
+{% if propiedades %}
+<div class="properties-table-container">
+    <table class="properties-table">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Propiedad</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>M²</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for propiedad in propiedades %}
+            <tr>
+                <td>
+                    {% if propiedad.imagen_principal %}
+                    <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="property-thumbnail">
+                    {% else %}
+                    <div class="property-thumbnail" style="display: flex; align-items: center; justify-content: center; background-color: var(--beige); color: var(--gris-medio); font-size: 1.5rem;">
+                        🏠
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="property-name">{{ propiedad.nombre }}</div>
+                    <div class="property-location">📍 {{ propiedad.ubicacion }}</div>
+                </td>
+                <td>
+                    <span class="property-type-badge">{{ propiedad.get_tipo_inmueble_display }}</span>
+                </td>
+                <td>
+                    <div class="property-price">${{ propiedad.precio|floatformat:0 }}</div>
+                </td>
+                <td>{{ propiedad.metros_cuadrados }} m²</td>
+                <td>{{ propiedad.fecha_creacion|date:"d/m/Y" }}</td>
+                <td>
+                    <div class="property-actions">
+                        <a href="{% url 'properties:property_detail' propiedad.pk %}" class="btn-icon btn-view" title="Ver" target="_blank">
+                            👁️
+                        </a>
+                        <a href="{% url 'dashboard:property_update' propiedad.pk %}" class="btn-icon btn-edit" title="Editar">
+                            ✏️
+                        </a>
+                        <a href="{% url 'dashboard:property_delete' propiedad.pk %}" class="btn-icon btn-delete" title="Eliminar">
+                            🗑️
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<!-- Sin Propiedades -->
+<div class="properties-table-container">
+    <div class="no-properties">
+        <div class="no-properties-icon">🏘️</div>
+        <h3>No hay propiedades registradas</h3>
+        <p>Comienza agregando tu primera propiedad al catálogo</p>
+        <a href="{% url 'dashboard:property_create' %}" class="btn btn-primary" style="margin-top: 1rem;">
+            Agregar Primera Propiedad
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

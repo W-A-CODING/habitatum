@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-claro) 100%);
+        color: var(--blanco);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        text-align: center;
+        border-radius: var(--radio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: var(--espacio-md);
+        font-weight: 700;
+    }
+    
+    .hero p {
+        font-size: 1.25rem;
+        margin-bottom: var(--espacio-lg);
+        color: var(--azul-medio);
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: var(--espacio-md);
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    /* Carousel de propiedades */
+    .propiedades-destacadas {
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .propiedades-destacadas h2 {
+        text-align: center;
+        color: var(--azul-oscuro);
+        font-size: 2rem;
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .carousel {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--espacio-lg);
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .property-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        overflow: hidden;
+        box-shadow: var(--sombra-md);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: var(--negro);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--sombra-lg);
+    }
+    
+    .property-card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background-color: var(--beige);
+    }
+    
+    .property-card-content {
+        padding: var(--espacio-md);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .property-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .property-card-location {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: var(--espacio-sm);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .property-card-details {
+        display: flex;
+        gap: var(--espacio-md);
+        margin-bottom: var(--espacio-md);
+        font-size: 0.875rem;
+        color: var(--gris-medio);
+    }
+    
+    .property-card-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--naranja);
+        margin-top: auto;
+    }
+    
+    /* Sección de características */
+    .caracteristicas {
+        background-color: var(--beige);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        border-radius: var(--radio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .caracteristicas h2 {
+        text-align: center;
+        color: var(--azul-oscuro);
+        font-size: 2rem;
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .caracteristicas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--espacio-lg);
+    }
+    
+    .caracteristica-item {
+        text-align: center;
+        padding: var(--espacio-lg);
+        background-color: var(--blanco);
+        border-radius: var(--radio-md);
+        box-shadow: var(--sombra-sm);
+    }
+    
+    .caracteristica-icon {
+        font-size: 3rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .caracteristica-item h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .caracteristica-item p {
+        color: var(--gris-medio);
+        line-height: 1.6;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        border-radius: var(--radio-lg);
+        text-align: center;
+    }
+    
+    .cta-section h2 {
+        font-size: 2rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .cta-section p {
+        font-size: 1.125rem;
+        margin-bottom: var(--espacio-lg);
+        color: var(--beige);
+    }
+    
+    /* Mensaje cuando no hay propiedades */
+    .no-propiedades {
+        text-align: center;
+        padding: var(--espacio-xl);
+        background-color: var(--beige);
+        border-radius: var(--radio-lg);
+    }
+    
+    .no-propiedades p {
+        color: var(--gris-medio);
+        font-size: 1.125rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        }
+        
+        .hero p {
+            font-size: 1rem;
+        }
+        
+        .carousel {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Encuentra tu hogar ideal</h1>
+        <p>Propiedades de calidad con asesoría crediticia personalizada</p>
+        <div class="hero-buttons">
+            <a href="{% url 'properties:property_list' %}" class="btn btn-primary">Ver Propiedades</a>
+            <a href="{% url 'core:services' %}" class="btn btn-secondary">Nuestros Servicios</a>
+        </div>
+    </section>
+    
+    <!-- Propiedades Destacadas -->
+    <section class="propiedades-destacadas">
+        <h2>Propiedades Destacadas</h2>
+        
+        {% if propiedades %}
+        <div class="carousel">
+            {% for propiedad in propiedades %}
+            <a href="{% url 'properties:property_detail' propiedad.pk %}" class="property-card">
+                {% if propiedad.imagen_principal %}
+                <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="property-card-image">
+                {% else %}
+                <div class="property-card-image" style="display: flex; align-items: center; justify-content: center; color: var(--gris-medio);">
+                    🏠 Sin imagen
+                </div>
+                {% endif %}
+                
+                <div class="property-card-content">
+                    <h3 class="property-card-title">{{ propiedad.nombre }}</h3>
+                    <p class="property-card-location">📍 {{ propiedad.ubicacion }}</p>
+                    
+                    <div class="property-card-details">
+                        <span>📐 {{ propiedad.metros_cuadrados }} m²</span>
+                        <span>🏠 {{ propiedad.get_tipo_inmueble_display }}</span>
+                    </div>
+                    
+                    <p class="property-card-price">${{ propiedad.precio|floatformat:0|intcomma }} MXN</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="{% url 'properties:property_list' %}" class="btn btn-secondary">Ver Todas las Propiedades</a>
+        </div>
+        {% else %}
+        <div class="no-propiedades">
+            <p>Por el momento no hay propiedades disponibles. ¡Pronto tendremos nuevas opciones para ti!</p>
+        </div>
+        {% endif %}
+    </section>
+    
+    <!-- Características -->
+    <section class="caracteristicas">
+        <h2>¿Por qué elegir Habitatum?</h2>
+        <div class="caracteristicas-grid">
+            <div class="caracteristica-item">
+                <div class="caracteristica-icon">🏠</div>
+                <h3>Propiedades de Calidad</h3>
+                <p>Seleccionamos cuidadosamente cada propiedad para ofrecerte las mejores opciones del mercado.</p>
+            </div>
+            
+            <div class="caracteristica-item">
+                <div class="caracteristica-icon">💰</div>
+                <h3>Asesoría Crediticia</h3>
+                <p>Te ayudamos a encontrar el mejor crédito hipotecario según tus necesidades e ingresos.</p>
+            </div>
+            
+            <div class="caracteristica-item">
+                <div class="caracteristica-icon">🤝</div>
+                <h3>Acompañamiento Total</h3>
+                <p>Desde la primera visita hasta la firma de escrituras, estaremos contigo en cada paso.</p>
+            </div>
+            
+            <div class="caracteristica-item">
+                <div class="caracteristica-icon">⚡</div>
+                <h3>Proceso Rápido</h3>
+                <p>Agilizamos todos los trámites para que encuentres tu hogar lo más pronto posible.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Final -->
+    <section class="cta-section">
+        <h2>¿Listo para encontrar tu hogar?</h2>
+        <p>Agenda una cita y descubre la propiedad perfecta para ti</p>
+        <a href="{% url 'properties:property_list' %}" class="btn btn-primary" style="background-color: var(--naranja);">Explorar Propiedades</a>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Script para formatear números con comas (si es necesario)
+    document.addEventListener('DOMContentLoaded', function() {
+        const precios = document.querySelectorAll('.property-card-price');
+        precios.forEach(function(precio) {
+            // Aquí podrías agregar lógica adicional si es necesario
+        });
+    });
+</script>
+{% endblock %}

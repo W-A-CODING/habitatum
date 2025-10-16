@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ propiedad.nombre }} - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    .breadcrumb {
+        padding: var(--espacio-md) 0;
+        display: flex;
+        gap: var(--espacio-sm);
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .breadcrumb a {
+        color: var(--azul-claro);
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    .property-detail-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: var(--espacio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    /* Columna principal */
+    .property-main {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        overflow: hidden;
+        box-shadow: var(--sombra-md);
+    }
+    
+    /* Galería de imágenes */
+    .property-gallery {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        background-color: var(--beige);
+    }
+    
+    .gallery-main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .gallery-badge {
+        position: absolute;
+        top: var(--espacio-md);
+        left: var(--espacio-md);
+        background-color: var(--naranja);
+        color: var(--blanco);
+        padding: 0.5rem 1rem;
+        border-radius: var(--radio-md);
+        font-weight: 600;
+    }
+    
+    .gallery-thumbnails {
+        display: flex;
+        gap: var(--espacio-sm);
+        padding: var(--espacio-md);
+        overflow-x: auto;
+        background-color: var(--gris-claro);
+    }
+    
+    .gallery-thumbnail {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: var(--radio-sm);
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+    
+    .gallery-thumbnail:hover,
+    .gallery-thumbnail.active {
+        border-color: var(--naranja);
+    }
+    
+    /* Contenido de la propiedad */
+    .property-content {
+        padding: var(--espacio-lg);
+    }
+    
+    .property-title {
+        font-size: 2rem;
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .property-location {
+        color: var(--gris-medio);
+        font-size: 1.125rem;
+        margin-bottom: var(--espacio-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--espacio-sm);
+    }
+    
+    .property-specs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--espacio-md);
+        padding: var(--espacio-lg);
+        background-color: var(--beige);
+        border-radius: var(--radio-md);
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .spec-item {
+        text-align: center;
+    }
+    
+    .spec-icon {
+        font-size: 2rem;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .spec-label {
+        display: block;
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .spec-value {
+        display: block;
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        font-size: 1.125rem;
+    }
+    
+    .property-description {
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .property-description h2 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .property-description p {
+        color: var(--gris-medio);
+        line-height: 1.8;
+    }
+    
+    /* Sidebar */
+    .property-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--espacio-lg);
+    }
+    
+    .sidebar-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        padding: var(--espacio-lg);
+        box-shadow: var(--sombra-md);
+    }
+    
+    .sidebar-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--naranja);
+        text-align: center;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .sidebar-price-label {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--gris-medio);
+        font-weight: normal;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .sidebar-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: var(--espacio-md);
+    }
+    
+    .sidebar-card h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-md);
+        font-size: 1.25rem;
+    }
+    
+    .sidebar-card p {
+        color: var(--gris-medio);
+        line-height: 1.6;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    /* Propiedades similares */
+    .similar-properties {
+        margin-top: var(--espacio-xl);
+    }
+    
+    .similar-properties h2 {
+        text-align: center;
+        color: var(--azul-oscuro);
+        font-size: 2rem;
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--espacio-lg);
+    }
+    
+    @media (max-width: 968px) {
+        .property-detail-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .property-gallery {
+            height: 300px;
+        }
+        
+        .property-specs {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'core:home' %}">Inicio</a>
+        <span>›</span>
+        <a href="{% url 'properties:property_list' %}">Propiedades</a>
+        <span>›</span>
+        <span>{{ propiedad.nombre }}</span>
+    </nav>
+    
+    <!-- Layout Principal -->
+    <div class="property-detail-layout">
+        <!-- Columna Principal -->
+        <div class="property-main">
+            <!-- Galería -->
+            <div class="property-gallery">
+                {% if propiedad.imagen_principal %}
+                <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="gallery-main-image" id="mainImage">
+                {% else %}
+                <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gris-medio); font-size: 2rem;">
+                    🏠 Sin imagen
+                </div>
+                {% endif %}
+                <div class="gallery-badge">{{ propiedad.get_tipo_inmueble_display }}</div>
+            </div>
+            
+            {% if todas_las_imagenes|length > 1 %}
+            <div class="gallery-thumbnails">
+                {% for imagen in todas_las_imagenes %}
+                <img src="{{ imagen.url }}" alt="Imagen {{ forloop.counter }}" class="gallery-thumbnail {% if forloop.first %}active{% endif %}" onclick="changeImage('{{ imagen.url }}', this)">
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Contenido -->
+            <div class="property-content">
+                <h1 class="property-title">{{ propiedad.nombre }}</h1>
+                <p class="property-location">📍 {{ propiedad.ubicacion }}</p>
+                
+                <!-- Especificaciones -->
+                <div class="property-specs">
+                    <div class="spec-item">
+                        <div class="spec-icon">📐</div>
+                        <span class="spec-label">Superficie</span>
+                        <span class="spec-value">{{ propiedad.metros_cuadrados }} m²</span>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-icon">🏠</div>
+                        <span class="spec-label">Tipo</span>
+                        <span class="spec-value">{{ propiedad.get_tipo_inmueble_display }}</span>
+                    </div>
+                    
+                    <div class="spec-item">
+                        <div class="spec-icon">📅</div>
+                        <span class="spec-label">Publicado</span>
+                        <span class="spec-value">{{ propiedad.fecha_creacion|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+                
+                <!-- Descripción -->
+                <div class="property-description">
+                    <h2>Descripción</h2>
+                    <p>{{ propiedad.descripcion|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <aside class="property-sidebar">
+            <!-- Precio y Acciones -->
+            <div class="sidebar-card">
+                <div class="sidebar-price">
+                    <span class="sidebar-price-label">Precio</span>
+                    ${{ propiedad.precio|floatformat:0 }} MXN
+                </div>
+                
+                <div class="sidebar-buttons">
+                    <a href="{% url 'appointments:create_normal' propiedad.pk %}" class="btn btn-primary">Agendar Cita Normal</a>
+                    <a href="{% url 'appointments:create_priority' propiedad.pk %}" class="btn btn-secondary">Cita con Asesoría</a>
+                </div>
+            </div>
+            
+            <!-- Información de Contacto -->
+            <div class="sidebar-card">
+                <h3>¿Necesitas más información?</h3>
+                <p>Nuestro equipo está listo para ayudarte a encontrar tu hogar ideal.</p>
+                <p><strong>📧</strong> info@habitatum.com</p>
+                <p><strong>📱</strong> 222 123 4567</p>
+                <p><strong>⏰</strong> Lun - Vie: 9:00 AM - 6:00 PM</p>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Propiedades Similares -->
+    {% if propiedades_similares %}
+    <section class="similar-properties">
+        <h2>Propiedades Similares</h2>
+        <div class="similar-grid">
+            {% for similar in propiedades_similares %}
+            <a href="{% url 'properties:property_detail' similar.pk %}" class="property-card">
+                {% if similar.imagen_principal %}
+                <img src="{{ similar.imagen_principal.url }}" alt="{{ similar.nombre }}" class="property-card-image">
+                {% else %}
+                <div class="property-card-image" style="display: flex; align-items: center; justify-content: center; color: var(--gris-medio);">
+                    🏠 Sin imagen
+                </div>
+                {% endif %}
+                
+                <div class="property-card-content">
+                    <h3 class="property-card-title">{{ similar.nombre }}</h3>
+                    <p class="property-card-location">📍 {{ similar.ubicacion }}</p>
+                    <p class="property-card-price">${{ similar.precio|floatformat:0 }} MXN</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function changeImage(imageUrl, thumbnail) {
+        // Cambiar imagen principal
+        document.getElementById('mainImage').src = imageUrl;
+        
+        // Actualizar clase active
+        document.querySelectorAll('.gallery-thumbnail').forEach(thumb => {
+            thumb.classList.remove('active');
+        });
+        thumbnail.classList.add('active');
+    }
+</script>
+{% endblock %}

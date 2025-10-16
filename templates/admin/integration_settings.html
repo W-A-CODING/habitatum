@@ -1,0 +1,307 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Configuración de Integraciones - Panel Admin{% endblock %}
+
+{% block page_title %}Configuración de Integraciones{% endblock %}
+
+{% block extra_css %}
+<style>
+    .integrations-intro {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .integrations-intro h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+    }
+    
+    .integrations-intro p {
+        color: var(--gris-medio);
+        line-height: 1.6;
+    }
+    
+    .integration-card {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .integration-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--beige);
+    }
+    
+    .integration-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .integration-icon {
+        font-size: 3rem;
+    }
+    
+    .integration-title h3 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .integration-title p {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .integration-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .integration-status.conectado {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .integration-status.desconectado {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .integration-body {
+        margin-bottom: 1.5rem;
+    }
+    
+    .integration-description {
+        color: var(--gris-medio);
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+    
+    .integration-features {
+        background-color: var(--beige);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .integration-features h4 {
+        color: var(--azul-oscuro);
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    .integration-features ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .integration-features li {
+        padding: 0.5rem 0;
+        color: var(--gris-medio);
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    
+    .integration-features li:before {
+        content: "✓";
+        color: var(--verde);
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .integration-info {
+        background-color: #d1ecf1;
+        border: 1px solid #17a2b8;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #0c5460;
+    }
+    
+    .integration-info strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .integration-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .integration-details {
+        background-color: var(--gris-claro);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .integration-details p {
+        margin-bottom: 0.5rem;
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .integration-details strong {
+        color: var(--azul-oscuro);
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 1rem;
+        color: #856404;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .integration-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .integration-actions {
+            flex-direction: column;
+        }
+        
+        .integration-actions button,
+        .integration-actions a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Introducción -->
+<div class="integrations-intro">
+    <h3>Gestiona las Integraciones de Habitatum</h3>
+    <p>
+        Conecta servicios externos para automatizar procesos y mejorar la gestión de tu negocio.
+        Las integraciones te permiten sincronizar citas, enviar notificaciones automáticas y más.
+    </p>
+</div>
+
+<!-- Google Calendar Integration -->
+<div class="integration-card">
+    <div class="integration-header">
+        <div class="integration-title">
+            <div class="integration-icon">📅</div>
+            <div>
+                <h3>Google Calendar</h3>
+                <p>Sincroniza automáticamente las citas con tu calendario</p>
+            </div>
+        </div>
+        
+        <span class="integration-status {{ 'conectado' if google_conectado else 'desconectado' }}">
+            {% if google_conectado %}
+            ✅ Conectado
+            {% else %}
+            ❌ Desconectado
+            {% endif %}
+        </span>
+    </div>
+    
+    <div class="integration-body">
+        <p class="integration-description">
+            Al conectar Google Calendar, todas las citas agendadas por los clientes se crearán 
+            automáticamente como eventos en tu calendario de Google. Esto te permite:
+        </p>
+        
+        <div class="integration-features">
+            <h4>Características:</h4>
+            <ul>
+                <li>Sincronización automática de citas en tiempo real</li>
+                <li>Notificaciones de Google en tu dispositivo</li>
+                <li>Visualización de citas en todos tus dispositivos</li>
+                <li>Integración con Gmail y otros servicios de Google</li>
+                <li>Recordatorios automáticos antes de cada cita</li>
+            </ul>
+        </div>
+        
+        {% if google_conectado %}
+        <!-- Conectado -->
+        <div class="integration-info">
+            <strong>✅ Integración Activa</strong>
+            Tu cuenta de Google Calendar está conectada y funcionando correctamente.
+            Todas las nuevas citas se sincronizarán automáticamente.
+        </div>
+        
+        <div class="integration-details">
+            <p><strong>Conectado como:</strong> {{ user.email }}</p>
+            <p><strong>Última actualización:</strong> {{ google_token.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+        </div>
+        
+        <div class="integration-actions">
+            <form method="post" action="{% url 'integrations:google_disconnect' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas desconectar Google Calendar? Las nuevas citas ya no se sincronizarán.')">
+                    Desconectar
+                </button>
+            </form>
+        </div>
+        
+        {% else %}
+        <!-- Desconectado -->
+        <div class="alert-warning">
+            <strong>⚠️ No Conectado</strong>
+            Para activar la sincronización automática con Google Calendar, 
+            debes autorizar el acceso a tu cuenta de Google.
+        </div>
+        
+        <div class="integration-features">
+            <h4>Para conectar necesitas:</h4>
+            <ul>
+                <li>Una cuenta de Google activa</li>
+                <li>Permisos para crear y modificar eventos en tu calendario</li>
+                <li>Acceso a internet durante el proceso de autorización</li>
+            </ul>
+        </div>
+        
+        <div class="integration-actions">
+            <a href="{% url 'integrations:google_authorize' %}" class="btn btn-success">
+                Conectar con Google Calendar
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Otras Integraciones (placeholder para futuro) -->
+<div class="integration-card" style="opacity: 0.6;">
+    <div class="integration-header">
+        <div class="integration-title">
+            <div class="integration-icon">📧</div>
+            <div>
+                <h3>Email Marketing</h3>
+                <p>Próximamente</p>
+            </div>
+        </div>
+        
+        <span class="integration-status desconectado">Próximamente</span>
+    </div>
+    
+    <div class="integration-body">
+        <p class="integration-description">
+            Pronto podrás conectar servicios de email marketing para enviar campañas 
+            automatizadas a tus clientes potenciales.
+        </p>
+    </div>
+</div>
+{% endblock %}

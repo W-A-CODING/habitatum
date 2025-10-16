@@ -1,0 +1,373 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Calendario de Citas - Panel Admin - Habitatum{% endblock %}
+
+{% block page_title %}Calendario de Citas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .calendar-nav a {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+    
+    .calendar-nav a:hover {
+        background-color: var(--azul-oscuro);
+    }
+    
+    .calendar-title {
+        font-size: 1.5rem;
+        color: var(--azul-oscuro);
+        font-weight: 700;
+    }
+    
+    .calendar-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .calendar-grid {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .calendar-day-header {
+        text-align: center;
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .calendar-day {
+        aspect-ratio: 1;
+        border: 2px solid var(--beige);
+        border-radius: 8px;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--negro);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .calendar-day:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .calendar-day.verde {
+        background-color: #d4edda;
+        border-color: #28a745;
+    }
+    
+    .calendar-day.amarillo {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+    }
+    
+    .calendar-day.rojo {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+    }
+    
+    .day-number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        margin-bottom: 0.25rem;
+    }
+    
+    .day-count {
+        font-size: 0.75rem;
+        color: var(--gris-medio);
+    }
+    
+    .citas-del-dia {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+    }
+    
+    .citas-del-dia h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+    
+    .cita-item {
+        padding: 1rem;
+        background-color: var(--beige);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--azul-claro);
+    }
+    
+    .cita-item.prioritaria {
+        border-left-color: var(--naranja);
+    }
+    
+    .cita-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cita-cliente {
+        font-weight: 600;
+        color: var(--azul-oscuro);
+    }
+    
+    .cita-tipo {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .cita-tipo.normal {
+        background-color: var(--azul-medio);
+        color: var(--azul-oscuro);
+    }
+    
+    .cita-tipo.prioritaria {
+        background-color: var(--naranja);
+        color: var(--blanco);
+    }
+    
+    .cita-propiedad {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cita-actions {
+        margin-top: 0.5rem;
+    }
+    
+    .cita-actions a {
+        font-size: 0.875rem;
+        color: var(--azul-claro);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .cita-actions a:hover {
+        text-decoration: underline;
+    }
+    
+    .legend {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        padding: 1rem;
+        background-color: var(--beige);
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+    
+    .legend-color.verde {
+        background-color: #28a745;
+    }
+    
+    .legend-color.amarillo {
+        background-color: #ffc107;
+    }
+    
+    .legend-color.rojo {
+        background-color: #dc3545;
+    }
+    
+    @media (max-width: 768px) {
+        .calendar-controls {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .calendar-days {
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+        }
+        
+        .day-number {
+            font-size: 1rem;
+        }
+        
+        .day-count {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Controles del Calendario -->
+<div class="calendar-controls">
+    <div class="calendar-nav">
+        <a href="?mes={{ mes_anterior }}&anio={{ anio_anterior }}">← Anterior</a>
+    </div>
+    
+    <h2 class="calendar-title">{{ nombre_mes }} {{ anio_actual }}</h2>
+    
+    <div class="calendar-nav">
+        <a href="?mes={{ mes_siguiente }}&anio={{ anio_siguiente }}">Siguiente →</a>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="calendar-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_citas_mes }}</div>
+        <div class="stat-label">Total de Citas</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ citas_normales }}</div>
+        <div class="stat-label">Citas Normales</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ citas_prioritarias }}</div>
+        <div class="stat-label">Citas Prioritarias</div>
+    </div>
+</div>
+
+<!-- Calendario -->
+<div class="calendar-grid">
+    <div class="calendar-days">
+        <div class="calendar-day-header">Lun</div>
+        <div class="calendar-day-header">Mar</div>
+        <div class="calendar-day-header">Mié</div>
+        <div class="calendar-day-header">Jue</div>
+        <div class="calendar-day-header">Vie</div>
+        <div class="calendar-day-header">Sáb</div>
+        <div class="calendar-day-header">Dom</div>
+    </div>
+    
+    <div class="calendar-days">
+        {% for dia, info in dias_calendario.items %}
+        <a href="?mes={{ mes_actual }}&anio={{ anio_actual }}&dia={{ dia }}" class="calendar-day {{ info.color }}">
+            <span class="day-number">{{ dia }}</span>
+            {% if info.cantidad > 0 %}
+            <span class="day-count">{{ info.cantidad }} cita{{ info.cantidad|pluralize }}</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    
+    <!-- Leyenda -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color verde"></div>
+            <span>1 cita</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color amarillo"></div>
+            <span>2-4 citas</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color rojo"></div>
+            <span>5+ citas</span>
+        </div>
+    </div>
+</div>
+
+<!-- Citas del Día Seleccionado -->
+{% if dia_seleccionado and citas_del_dia %}
+<div class="citas-del-dia">
+    <h3>Citas del {{ dia_seleccionado }} de {{ nombre_mes }}</h3>
+    
+    {% for cita in citas_del_dia %}
+    <div class="cita-item {{ cita.tipo_cita }}">
+        <div class="cita-header">
+            <div class="cita-cliente">{{ cita.nombre_cliente }}</div>
+            <span class="cita-tipo {{ cita.tipo_cita }}">{{ cita.get_tipo_cita_display }}</span>
+        </div>
+        
+        <div class="cita-propiedad">
+            🏠 {{ cita.property.nombre }}<br>
+            📧 {{ cita.email_cliente }}<br>
+            📱 {{ cita.telefono_cliente }}
+        </div>
+        
+        <div class="cita-actions">
+            <a href="{% url 'dashboard:appointment_detail' cita.pk %}">Ver detalles completos →</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

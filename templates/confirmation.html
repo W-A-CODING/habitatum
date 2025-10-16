@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Cita Confirmada - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-container {
+        max-width: 700px;
+        margin: var(--espacio-xl) auto;
+        text-align: center;
+    }
+    
+    .confirmation-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        padding: var(--espacio-xl);
+        box-shadow: var(--sombra-lg);
+    }
+    
+    .confirmation-icon {
+        font-size: 5rem;
+        margin-bottom: var(--espacio-lg);
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+    
+    .confirmation-title {
+        color: var(--azul-oscuro);
+        font-size: 2.5rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .confirmation-subtitle {
+        color: var(--verde);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .confirmation-message {
+        color: var(--gris-medio);
+        font-size: 1.125rem;
+        line-height: 1.8;
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .confirmation-steps {
+        background-color: var(--beige);
+        border-radius: var(--radio-md);
+        padding: var(--espacio-lg);
+        margin-bottom: var(--espacio-xl);
+        text-align: left;
+    }
+    
+    .confirmation-steps h3 {
+        color: var(--azul-oscuro);
+        text-align: center;
+        margin-bottom: var(--espacio-lg);
+        font-size: 1.5rem;
+    }
+    
+    .steps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .step-item {
+        display: flex;
+        gap: var(--espacio-md);
+        padding: var(--espacio-md);
+        margin-bottom: var(--espacio-md);
+        background-color: var(--blanco);
+        border-radius: var(--radio-sm);
+    }
+    
+    .step-number {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        background-color: var(--naranja);
+        color: var(--blanco);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+    
+    .step-content {
+        flex: 1;
+    }
+    
+    .step-title {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .step-description {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .confirmation-actions {
+        display: flex;
+        gap: var(--espacio-md);
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .contact-info {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: var(--espacio-lg);
+        border-radius: var(--radio-md);
+        margin-top: var(--espacio-xl);
+    }
+    
+    .contact-info h3 {
+        margin-bottom: var(--espacio-md);
+        font-size: 1.25rem;
+    }
+    
+    .contact-info p {
+        margin-bottom: var(--espacio-sm);
+        font-size: 1rem;
+    }
+    
+    .contact-info a {
+        color: var(--blanco);
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .confirmation-title {
+            font-size: 2rem;
+        }
+        
+        .confirmation-actions {
+            flex-direction: column;
+        }
+        
+        .confirmation-actions a,
+        .confirmation-actions button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <!-- Ícono de éxito -->
+            <div class="confirmation-icon">✅</div>
+            
+            <!-- Título -->
+            <h1 class="confirmation-title">¡Cita Agendada!</h1>
+            <p class="confirmation-subtitle">Tu solicitud ha sido recibida exitosamente</p>
+            
+            <!-- Mensaje -->
+            <p class="confirmation-message">
+                Gracias por tu interés en Habitatum. Hemos recibido tu solicitud de cita 
+                y te enviaremos un correo de confirmación con todos los detalles en breve.
+            </p>
+            
+            <!-- Próximos Pasos -->
+            <div class="confirmation-steps">
+                <h3>¿Qué sigue ahora?</h3>
+                <ol class="steps-list">
+                    <li class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Confirmación por Email</div>
+                            <div class="step-description">
+                                Recibirás un correo con los detalles de tu cita en los próximos minutos.
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Contacto del Equipo</div>
+                            <div class="step-description">
+                                Nuestro equipo se pondrá en contacto contigo para confirmar la fecha y hora.
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Visita a la Propiedad</div>
+                            <div class="step-description">
+                                Te esperamos en la fecha agendada para mostrarte todos los detalles de la propiedad.
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="confirmation-actions">
+                <a href="{% url 'properties:property_list' %}" class="btn btn-primary">
+                    Ver Más Propiedades
+                </a>
+                <a href="{% url 'core:home' %}" class="btn btn-secondary">
+                    Volver al Inicio
+                </a>
+            </div>
+        </div>
+        
+        <!-- Información de Contacto -->
+        <div class="contact-info">
+            <h3>¿Necesitas ayuda?</h3>
+            <p>Si tienes alguna pregunta o necesitas modificar tu cita, contáctanos:</p>
+            <p>📧 <a href="mailto:info@habitatum.com">info@habitatum.com</a></p>
+            <p>📱 <a href="tel:2221234567">222 123 4567</a></p>
+            <p>⏰ Lun - Vie: 9:00 AM - 6:00 PM | Sáb: 10:00 AM - 2:00 PM</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

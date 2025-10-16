@@ -1,0 +1,224 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Asignar Días Disponibles - Panel Admin{% endblock %}
+
+{% block page_title %}Asignar Días Disponibles{% endblock %}
+
+{% block extra_css %}
+<style>
+    .menu-intro {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .menu-intro h3 {
+        color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .menu-intro p {
+        color: var(--gris-medio);
+        line-height: 1.6;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .option-card {
+        background-color: var(--blanco);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .option-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    
+    .option-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .option-title {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .option-description {
+        color: var(--gris-medio);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+    }
+    
+    .option-features {
+        background-color: var(--beige);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    
+    .option-features ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .option-features li {
+        padding: 0.5rem 0;
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    
+    .option-features li:before {
+        content: "✓";
+        color: var(--verde);
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .option-button {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .option-card:hover .option-button {
+        background-color: var(--azul-oscuro);
+    }
+    
+    .option-card.normal .option-button {
+        background-color: var(--azul-claro);
+    }
+    
+    .option-card.prioritaria .option-button {
+        background-color: var(--naranja);
+    }
+    
+    .info-section {
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
+        color: var(--blanco);
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    .info-section h4 {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+    
+    .info-section p {
+        color: var(--azul-medio);
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .options-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Introducción -->
+<div class="menu-intro">
+    <h3>Gestiona la Disponibilidad de Días para Citas</h3>
+    <p>
+        Selecciona qué tipo de citas deseas configurar. Puedes establecer días disponibles 
+        diferentes para citas normales y citas prioritarias según tu disponibilidad y necesidades.
+    </p>
+</div>
+
+<!-- Opciones -->
+<div class="options-grid">
+    <!-- Citas Normales -->
+    <div class="option-card normal">
+        <div class="option-icon">📅</div>
+        <h3 class="option-title">Citas Normales</h3>
+        <p class="option-description">
+            Configura los días disponibles para visitas estándar a las propiedades.
+            Estas citas son para clientes que desean conocer las propiedades.
+        </p>
+        
+        <div class="option-features">
+            <ul>
+                <li>Visitas guiadas a propiedades</li>
+                <li>Duración estimada: 30-45 minutos</li>
+                <li>Sin requisitos previos</li>
+                <li>Proceso simple y rápido</li>
+            </ul>
+        </div>
+        
+        <a href="{% url 'dashboard:assign_normal_days' %}" class="option-button">
+            Configurar Días para Citas Normales
+        </a>
+    </div>
+    
+    <!-- Citas Prioritarias -->
+    <div class="option-card prioritaria">
+        <div class="option-icon">💼</div>
+        <h3 class="option-title">Citas Prioritarias</h3>
+        <p class="option-description">
+            Configura los días disponibles para citas con asesoría crediticia incluida.
+            Requieren más tiempo y preparación previa.
+        </p>
+        
+        <div class="option-features">
+            <ul>
+                <li>Visita + asesoría crediticia</li>
+                <li>Duración estimada: 60-90 minutos</li>
+                <li>Análisis de capacidad de pago</li>
+                <li>Requiere información financiera</li>
+                <li>Propuesta personalizada</li>
+            </ul>
+        </div>
+        
+        <a href="{% url 'dashboard:assign_priority_days' %}" class="option-button">
+            Configurar Días para Citas Prioritarias
+        </a>
+    </div>
+</div>
+
+<!-- Información Adicional -->
+<div class="info-section">
+    <h4>💡 Consejos para la Gestión de Días</h4>
+    <p>
+        Puedes configurar días diferentes para cada tipo de cita según tu disponibilidad.
+        Por ejemplo, reserva los viernes para citas prioritarias que requieren más tiempo,
+        y deja los demás días para citas normales. Recuerda actualizar tu disponibilidad
+        regularmente para mantener un servicio eficiente.
+    </p>
+</div>
+{% endblock %}

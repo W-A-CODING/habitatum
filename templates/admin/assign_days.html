@@ -1,0 +1,355 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Asignar Días - {{ nombre_mes }} {{ anio_actual }} - Panel Admin{% endblock %}
+
+{% block page_title %}
+    Asignar Días para Citas {{ 'Normales' if tipo_cita == 'normal' else 'Prioritarias' }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .assign-header {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .assign-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .assign-type-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .assign-type-badge.normal {
+        background-color: var(--azul-medio);
+        color: var(--azul-oscuro);
+    }
+    
+    .assign-type-badge.prioritaria {
+        background-color: var(--naranja);
+        color: var(--blanco);
+    }
+    
+    .assign-description {
+        color: var(--gris-medio);
+        line-height: 1.6;
+    }
+    
+    .calendar-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--blanco);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .nav-button {
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+    
+    .nav-button:hover {
+        background-color: var(--azul-oscuro);
+    }
+    
+    .current-month {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--azul-oscuro);
+    }
+    
+    .calendar-container {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .calendar-days-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .day-header {
+        text-align: center;
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .calendar-days-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .calendar-day-cell {
+        aspect-ratio: 1;
+        border: 2px solid var(--beige);
+        border-radius: 8px;
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background-color: var(--blanco);
+    }
+    
+    .calendar-day-cell:hover:not(.disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        border-color: var(--azul-claro);
+    }
+    
+    .calendar-day-cell.disabled {
+        background-color: var(--gris-claro);
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
+    .calendar-day-cell.has-appointments {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+    }
+    
+    .day-number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        margin-bottom: 0.25rem;
+    }
+    
+    .day-info {
+        font-size: 0.75rem;
+        color: var(--gris-medio);
+        text-align: center;
+    }
+    
+    .appointments-count {
+        display: inline-block;
+        background-color: var(--naranja);
+        color: var(--blanco);
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+    
+    .calendar-legend {
+        background-color: var(--beige);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .calendar-legend h4 {
+        color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+    
+    .legend-items {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .legend-box {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        border: 2px solid;
+    }
+    
+    .legend-box.normal {
+        background-color: var(--blanco);
+        border-color: var(--beige);
+    }
+    
+    .legend-box.with-appointments {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+    }
+    
+    .legend-box.disabled {
+        background-color: var(--gris-claro);
+        border-color: var(--beige);
+    }
+    
+    .legend-text {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+    }
+    
+    .info-note {
+        background-color: #d1ecf1;
+        border: 1px solid #17a2b8;
+        border-radius: 8px;
+        padding: 1rem;
+        color: #0c5460;
+    }
+    
+    .info-note strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .calendar-navigation {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .calendar-days-grid {
+            gap: 0.25rem;
+        }
+        
+        .calendar-day-cell {
+            padding: 0.5rem;
+        }
+        
+        .day-number {
+            font-size: 1rem;
+        }
+        
+        .day-info {
+            font-size: 0.65rem;
+        }
+        
+        .legend-items {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="assign-header">
+    <div class="assign-header-top">
+        <h3 style="color: var(--azul-oscuro); font-size: 1.5rem;">
+            Gestionar Disponibilidad de Días
+        </h3>
+        <span class="assign-type-badge {{ tipo_cita }}">
+            {% if tipo_cita == 'normal' %}
+            📅 Citas Normales
+            {% else %}
+            💼 Citas Prioritarias
+            {% endif %}
+        </span>
+    </div>
+    <p class="assign-description">
+        {% if tipo_cita == 'normal' %}
+        Visualiza los días con citas normales agendadas. Los clientes pueden agendar visitas estándar a las propiedades.
+        {% else %}
+        Visualiza los días con citas prioritarias agendadas. Estas citas incluyen asesoría crediticia y requieren más tiempo.
+        {% endif %}
+    </p>
+</div>
+
+<!-- Navegación del Calendario -->
+<div class="calendar-navigation">
+    <a href="?mes={{ mes_anterior }}&anio={{ anio_anterior }}" class="nav-button">← Mes Anterior</a>
+    <h3 class="current-month">{{ nombre_mes }} {{ anio_actual }}</h3>
+    <a href="?mes={{ mes_siguiente }}&anio={{ anio_siguiente }}" class="nav-button">Mes Siguiente →</a>
+</div>
+
+<!-- Calendario -->
+<div class="calendar-container">
+    <!-- Headers de días -->
+    <div class="calendar-days-header">
+        <div class="day-header">Lun</div>
+        <div class="day-header">Mar</div>
+        <div class="day-header">Mié</div>
+        <div class="day-header">Jue</div>
+        <div class="day-header">Vie</div>
+        <div class="day-header">Sáb</div>
+        <div class="day-header">Dom</div>
+    </div>
+    
+    <!-- Grid de días -->
+    <div class="calendar-days-grid">
+        {% for dia in dias_del_mes %}
+        <div class="calendar-day-cell {% if dia.es_pasado %}disabled{% endif %} {% if dia.citas > 0 %}has-appointments{% endif %}">
+            <span class="day-number">{{ dia.numero }}</span>
+            <span class="day-info">{{ dia.nombre_dia }}</span>
+            
+            {% if dia.citas > 0 %}
+            <span class="appointments-count">
+                {{ dia.citas }} cita{{ dia.citas|pluralize }}
+            </span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Leyenda -->
+<div class="calendar-legend">
+    <h4>📋 Leyenda</h4>
+    <div class="legend-items">
+        <div class="legend-item">
+            <div class="legend-box normal"></div>
+            <span class="legend-text">Sin citas agendadas</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box with-appointments"></div>
+            <span class="legend-text">Con citas agendadas</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box disabled"></div>
+            <span class="legend-text">Día pasado (no disponible)</span>
+        </div>
+    </div>
+</div>
+
+<!-- Nota Informativa -->
+<div class="info-note">
+    <strong>💡 Nota:</strong>
+    Este calendario muestra de forma visual los días que tienen citas agendadas de tipo 
+    {{ 'normal' if tipo_cita == 'normal' else 'prioritaria' }}. 
+    Puedes ver las citas específicas de cada día desde el 
+    <a href="{% url 'dashboard:calendar' %}" style="color: #0c5460; font-weight: 600;">calendario principal</a>.
+</div>
+
+<!-- Botón de regreso -->
+<div style="text-align: center; margin-top: 2rem;">
+    <a href="{% url 'dashboard:assign_days' %}" class="btn btn-secondary">
+        ← Volver al Menú de Asignación
+    </a>
+</div>
+{% endblock %}

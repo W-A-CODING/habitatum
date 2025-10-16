@@ -1,0 +1,166 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Eliminar Propiedad - {{ property.nombre }} - Panel Admin{% endblock %}
+
+{% block page_title %}Confirmar Eliminación{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .confirm-card {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+    
+    .confirm-header {
+        background-color: var(--rojo);
+        color: var(--blanco);
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .confirm-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .confirm-header h3 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .confirm-header p {
+        opacity: 0.9;
+    }
+    
+    .confirm-body {
+        padding: 2rem;
+    }
+    
+    .property-preview {
+        background-color: var(--beige);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--rojo);
+    }
+    
+    .property-preview-title {
+        color: var(--azul-oscuro);
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .property-preview-info {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .warning-box {
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .warning-box h4 {
+        color: #856404;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .warning-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .warning-box li {
+        color: #856404;
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    
+    .warning-box li:before {
+        content: "⚠️";
+        flex-shrink: 0;
+    }
+    
+    .confirm-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .confirm-actions button,
+    .confirm-actions a {
+        flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .confirm-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="confirm-card">
+        <!-- Header -->
+        <div class="confirm-header">
+            <div class="confirm-icon">🗑️</div>
+            <h3>¿Eliminar esta propiedad?</h3>
+            <p>Esta acción no se puede deshacer</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="confirm-body">
+            <!-- Vista Previa de la Propiedad -->
+            <div class="property-preview">
+                <div class="property-preview-title">{{ property.nombre }}</div>
+                <div class="property-preview-info">📍 {{ property.ubicacion }}</div>
+                <div class="property-preview-info">💰 ${{ property.precio|floatformat:0 }} MXN</div>
+                <div class="property-preview-info">📐 {{ property.metros_cuadrados }} m² | 🏠 {{ property.get_tipo_inmueble_display }}</div>
+            </div>
+            
+            <!-- Advertencias -->
+            <div class="warning-box">
+                <h4>⚠️ Importante</h4>
+                <ul>
+                    <li>Esta propiedad será eliminada permanentemente</li>
+                    <li>Las imágenes asociadas también se eliminarán</li>
+                    <li>Ya no aparecerá en el sitio público</li>
+                    <li>Esta acción NO se puede deshacer</li>
+                </ul>
+            </div>
+            
+            <!-- Formulario de Confirmación -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="confirm-actions">
+                    <a href="{% url 'dashboard:property_list' %}" class="btn btn-secondary">
+                        ← Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        Sí, Eliminar Propiedad
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

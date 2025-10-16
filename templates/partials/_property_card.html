@@ -1,0 +1,73 @@
+{% comment %}
+Partial reutilizable para mostrar tarjetas de propiedades.
+
+Uso:
+{% include 'partials/_property_card.html' with property=propiedad %}
+
+Variables requeridas:
+- property: objeto Property con todos sus campos
+
+Ejemplo en una vista:
+{% for propiedad in propiedades %}
+    {% include 'partials/_property_card.html' with property=propiedad %}
+{% endfor %}
+{% endcomment %}
+
+<a href="{% url 'properties:property_detail' property.pk %}" class="property-card" style="text-decoration: none; color: inherit; display: block;">
+    <div class="property-card-wrapper" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+        <!-- Imagen -->
+        <div class="property-card-image-container" style="position: relative; width: 100%; height: 220px; overflow: hidden;">
+            {% if property.imagen_principal %}
+            <img src="{{ property.imagen_principal.url }}" 
+                 alt="{{ property.nombre }}" 
+                 style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #E9F2F9; color: #6c757d; font-size: 2rem;">
+                🏠
+            </div>
+            {% endif %}
+            
+            <!-- Badge de tipo -->
+            <span style="position: absolute; top: 1rem; right: 1rem; background-color: #F26C4F; color: #ffffff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
+                {{ property.get_tipo_inmueble_display }}
+            </span>
+        </div>
+        
+        <!-- Contenido -->
+        <div class="property-card-content" style="padding: 1rem;">
+            <!-- Título -->
+            <h3 style="font-size: 1.25rem; font-weight: 600; color: #1B325F; margin: 0 0 0.5rem 0; line-height: 1.3;">
+                {{ property.nombre }}
+            </h3>
+            
+            <!-- Ubicación -->
+            <p style="color: #6c757d; font-size: 0.875rem; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.25rem;">
+                <span>📍</span> {{ property.ubicacion }}
+            </p>
+            
+            <!-- Detalles -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #E9F2F9; font-size: 0.875rem; color: #6c757d;">
+                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span>📐</span> {{ property.metros_cuadrados }} m²
+                </span>
+            </div>
+            
+            <!-- Footer con precio -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 1.5rem; font-weight: 700; color: #F26C4F;">
+                    ${{ property.precio|floatformat:0 }} MXN
+                </span>
+                <span style="color: #3A89C9; font-weight: 600; font-size: 0.875rem;">
+                    Ver detalles →
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<style>
+    .property-card-wrapper:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+</style>

@@ -1,0 +1,127 @@
+{% comment %}
+Partial reutilizable para el navbar del sitio.
+
+Uso:
+{% include 'partials/_navbar.html' %}
+
+Variables opcionales:
+- current_page: para marcar el item activo (opcional)
+
+Ejemplo:
+{% include 'partials/_navbar.html' with current_page='home' %}
+{% endcomment %}
+
+<nav class="navbar" style="background-color: #1B325F; padding: 1rem 2rem; box-shadow: 0 4px 8px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000;">
+    <div class="navbar-container" style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <!-- Logo -->
+        <a href="{% url 'core:home' %}" class="navbar-logo" style="color: #ffffff; font-size: 1.5rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.75rem;">🏠</span>
+            <span>Habitatum</span>
+        </a>
+        
+        <!-- Menu Desktop -->
+        <ul class="navbar-menu navbar-menu-desktop" style="display: flex; list-style: none; gap: 2rem; margin: 0; padding: 0;">
+            <li>
+                <a href="{% url 'core:home' %}" 
+                   class="navbar-link {% if current_page == 'home' %}active{% endif %}"
+                   style="color: #ffffff; text-decoration: none; font-weight: 500; transition: color 0.3s ease; {% if current_page == 'home' %}color: #F26C4F;{% endif %}">
+                    Inicio
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'properties:property_list' %}" 
+                   class="navbar-link {% if current_page == 'properties' %}active{% endif %}"
+                   style="color: #ffffff; text-decoration: none; font-weight: 500; transition: color 0.3s ease; {% if current_page == 'properties' %}color: #F26C4F;{% endif %}">
+                    Propiedades
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'core:services' %}" 
+                   class="navbar-link {% if current_page == 'services' %}active{% endif %}"
+                   style="color: #ffffff; text-decoration: none; font-weight: 500; transition: color 0.3s ease; {% if current_page == 'services' %}color: #F26C4F;{% endif %}">
+                    Servicios
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:login' %}" 
+                   class="navbar-link {% if current_page == 'admin' %}active{% endif %}"
+                   style="color: #ffffff; text-decoration: none; font-weight: 500; transition: color 0.3s ease; {% if current_page == 'admin' %}color: #F26C4F;{% endif %}">
+                    Panel Admin
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Botón de menú móvil -->
+        <button class="navbar-toggle" 
+                onclick="toggleMobileMenu()" 
+                style="display: none; background: none; border: none; color: #ffffff; font-size: 1.5rem; cursor: pointer;">
+            ☰
+        </button>
+    </div>
+    
+    <!-- Menu Mobile -->
+    <div id="mobileMenu" class="navbar-menu-mobile" style="display: none; padding-top: 1rem;">
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+            <li>
+                <a href="{% url 'core:home' %}" 
+                   style="color: #ffffff; text-decoration: none; padding: 0.75rem 1rem; display: block; text-align: center; {% if current_page == 'home' %}background-color: #F26C4F; border-radius: 8px;{% endif %}">
+                    Inicio
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'properties:property_list' %}" 
+                   style="color: #ffffff; text-decoration: none; padding: 0.75rem 1rem; display: block; text-align: center; {% if current_page == 'properties' %}background-color: #F26C4F; border-radius: 8px;{% endif %}">
+                    Propiedades
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'core:services' %}" 
+                   style="color: #ffffff; text-decoration: none; padding: 0.75rem 1rem; display: block; text-align: center; {% if current_page == 'services' %}background-color: #F26C4F; border-radius: 8px;{% endif %}">
+                    Servicios
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:login' %}" 
+                   style="color: #ffffff; text-decoration: none; padding: 0.75rem 1rem; display: block; text-align: center; {% if current_page == 'admin' %}background-color: #F26C4F; border-radius: 8px;{% endif %}">
+                    Panel Admin
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<style>
+    /* Hover effects */
+    .navbar-link:hover {
+        color: #F26C4F !important;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .navbar-menu-desktop {
+            display: none !important;
+        }
+        
+        .navbar-toggle {
+            display: block !important;
+        }
+    }
+</style>
+
+<script>
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu.style.display === 'none' || mobileMenu.style.display === '') {
+            mobileMenu.style.display = 'block';
+        } else {
+            mobileMenu.style.display = 'none';
+        }
+    }
+    
+    // Cerrar menú móvil al hacer click en un enlace
+    document.querySelectorAll('.navbar-menu-mobile a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('mobileMenu').style.display = 'none';
+        });
+    });
+</script>

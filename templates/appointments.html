@@ -1,0 +1,451 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendar Cita - {{ propiedad.nombre }} - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    .appointment-header {
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
+        color: var(--blanco);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        border-radius: var(--radio-lg);
+        margin-bottom: var(--espacio-xl);
+        text-align: center;
+    }
+    
+    .appointment-header h1 {
+        font-size: 2rem;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .appointment-header p {
+        color: var(--azul-medio);
+        font-size: 1.125rem;
+    }
+    
+    .appointment-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--espacio-xl);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    /* Información de la propiedad */
+    .property-info-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        overflow: hidden;
+        box-shadow: var(--sombra-md);
+        height: fit-content;
+    }
+    
+    .property-info-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        background-color: var(--beige);
+    }
+    
+    .property-info-content {
+        padding: var(--espacio-lg);
+    }
+    
+    .property-info-title {
+        font-size: 1.5rem;
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .property-info-location {
+        color: var(--gris-medio);
+        margin-bottom: var(--espacio-md);
+        display: flex;
+        align-items: center;
+        gap: var(--espacio-sm);
+    }
+    
+    .property-info-specs {
+        display: flex;
+        gap: var(--espacio-lg);
+        margin-bottom: var(--espacio-md);
+        padding-bottom: var(--espacio-md);
+        border-bottom: 1px solid var(--beige);
+    }
+    
+    .property-info-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--naranja);
+    }
+    
+    .property-info-link {
+        display: inline-block;
+        margin-top: var(--espacio-md);
+        color: var(--azul-claro);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .property-info-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Formulario */
+    .appointment-form-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        padding: var(--espacio-lg);
+        box-shadow: var(--sombra-md);
+    }
+    
+    .form-header {
+        margin-bottom: var(--espacio-lg);
+        padding-bottom: var(--espacio-md);
+        border-bottom: 2px solid var(--beige);
+    }
+    
+    .form-header h2 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .form-type-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radio-md);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .form-type-badge.normal {
+        background-color: var(--azul-medio);
+        color: var(--azul-oscuro);
+    }
+    
+    .form-type-badge.prioritaria {
+        background-color: var(--naranja);
+        color: var(--blanco);
+    }
+    
+    .form-description {
+        color: var(--gris-medio);
+        line-height: 1.6;
+    }
+    
+    .appointment-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--espacio-md);
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group label {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: var(--espacio-sm);
+        font-size: 0.875rem;
+    }
+    
+    .form-group label .required {
+        color: var(--naranja);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: var(--espacio-sm) var(--espacio-md);
+        border: 2px solid var(--azul-medio);
+        border-radius: var(--radio-sm);
+        font-size: 1rem;
+        font-family: var(--fuente-principal);
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--azul-claro);
+    }
+    
+    .form-group .help-text {
+        color: var(--gris-medio);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-errors {
+        background-color: #f8d7da;
+        border: 1px solid var(--rojo);
+        border-radius: var(--radio-sm);
+        padding: var(--espacio-md);
+        margin-bottom: var(--espacio-md);
+        color: #721c24;
+    }
+    
+    .form-errors ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .form-errors li {
+        margin-bottom: 0.25rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: var(--espacio-md);
+        margin-top: var(--espacio-md);
+    }
+    
+    .form-actions button,
+    .form-actions a {
+        flex: 1;
+    }
+    
+    /* Info adicional */
+    .additional-info {
+        background-color: var(--beige);
+        padding: var(--espacio-md);
+        border-radius: var(--radio-md);
+        margin-top: var(--espacio-md);
+    }
+    
+    .additional-info h4 {
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+        font-size: 1rem;
+    }
+    
+    .additional-info ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .additional-info li {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        padding: 0.25rem 0;
+        display: flex;
+        align-items: start;
+        gap: var(--espacio-sm);
+    }
+    
+    .additional-info li:before {
+        content: "✓";
+        color: var(--naranja);
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    @media (max-width: 968px) {
+        .appointment-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .property-info-image {
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="appointment-header">
+        <h1>Agendar Cita</h1>
+        <p>Completa el formulario para agendar tu visita a esta propiedad</p>
+    </div>
+    
+    <!-- Layout -->
+    <div class="appointment-layout">
+        <!-- Información de la Propiedad -->
+        <div class="property-info-card">
+            {% if propiedad.imagen_principal %}
+            <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="property-info-image">
+            {% else %}
+            <div class="property-info-image" style="display: flex; align-items: center; justify-content: center; color: var(--gris-medio);">
+                🏠 Sin imagen
+            </div>
+            {% endif %}
+            
+            <div class="property-info-content">
+                <h2 class="property-info-title">{{ propiedad.nombre }}</h2>
+                <p class="property-info-location">📍 {{ propiedad.ubicacion }}</p>
+                
+                <div class="property-info-specs">
+                    <span>📐 {{ propiedad.metros_cuadrados }} m²</span>
+                    <span>🏠 {{ propiedad.get_tipo_inmueble_display }}</span>
+                </div>
+                
+                <p class="property-info-price">${{ propiedad.precio|floatformat:0 }} MXN</p>
+                
+                <a href="{% url 'properties:property_detail' propiedad.pk %}" class="property-info-link">
+                    ← Ver detalles completos
+                </a>
+            </div>
+        </div>
+        
+        <!-- Formulario -->
+        <div class="appointment-form-card">
+            <div class="form-header">
+                <h2>
+                    {% if tipo_cita == 'normal' %}
+                    Cita Normal
+                    {% else %}
+                    Cita con Asesoría Crediticia
+                    {% endif %}
+                </h2>
+                <span class="form-type-badge {{ tipo_cita }}">
+                    {% if tipo_cita == 'normal' %}
+                    📅 Visita Estándar
+                    {% else %}
+                    💼 Asesoría Incluida
+                    {% endif %}
+                </span>
+                
+                <p class="form-description">
+                    {% if tipo_cita == 'normal' %}
+                    Agenda una visita para conocer la propiedad. Nuestro equipo te mostrará todos los detalles.
+                    {% else %}
+                    Agenda una cita y recibe asesoría crediticia personalizada basada en tus ingresos y necesidades.
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if form.errors %}
+            <div class="form-errors">
+                <strong>Por favor corrige los siguientes errores:</strong>
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <form method="post" class="appointment-form">
+                {% csrf_token %}
+                
+                <!-- Campos comunes -->
+                <div class="form-group">
+                    <label for="{{ form.nombre_cliente.id_for_label }}">
+                        {{ form.nombre_cliente.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.nombre_cliente }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.email_cliente.id_for_label }}">
+                        {{ form.email_cliente.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.email_cliente }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.telefono_cliente.id_for_label }}">
+                        {{ form.telefono_cliente.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.telefono_cliente }}
+                    <span class="help-text">Formato: 2221234567 (10 dígitos)</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.fecha_cita.id_for_label }}">
+                        {{ form.fecha_cita.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.fecha_cita }}
+                    <span class="help-text">Selecciona la fecha en que deseas visitar la propiedad</span>
+                </div>
+                
+                <!-- Campos solo para cita prioritaria -->
+                {% if tipo_cita == 'prioritaria' %}
+                <div class="form-group">
+                    <label for="{{ form.ingresos_mensuales.id_for_label }}">
+                        {{ form.ingresos_mensuales.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.ingresos_mensuales }}
+                    <span class="help-text">Tus ingresos mensuales en pesos mexicanos</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.tipo_credito.id_for_label }}">
+                        {{ form.tipo_credito.label }} <span class="required">*</span>
+                    </label>
+                    {{ form.tipo_credito }}
+                    <span class="help-text">Tipo de crédito de tu interés</span>
+                </div>
+                {% endif %}
+                
+                <!-- Botones -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        {% if tipo_cita == 'normal' %}
+                        Agendar Cita
+                        {% else %}
+                        Agendar Cita con Asesoría
+                        {% endif %}
+                    </button>
+                    <a href="{% url 'properties:property_detail' propiedad.pk %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Información Adicional -->
+            <div class="additional-info">
+                <h4>
+                    {% if tipo_cita == 'normal' %}
+                    ¿Qué incluye la visita?
+                    {% else %}
+                    ¿Qué incluye la asesoría?
+                    {% endif %}
+                </h4>
+                <ul>
+                    {% if tipo_cita == 'normal' %}
+                    <li>Recorrido completo por la propiedad</li>
+                    <li>Información detallada sobre características</li>
+                    <li>Respuesta a todas tus preguntas</li>
+                    <li>Sin compromiso de compra</li>
+                    {% else %}
+                    <li>Todo lo incluido en la cita normal</li>
+                    <li>Análisis de tu capacidad de crédito</li>
+                    <li>Opciones de financiamiento personalizadas</li>
+                    <li>Asesoría sobre trámites y documentos</li>
+                    <li>Apoyo en todo el proceso de compra</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Establecer fecha mínima como mañana
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.querySelector('input[type="date"]');
+        if (fechaInput) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const minDate = tomorrow.toISOString().split('T')[0];
+            fechaInput.setAttribute('min', minDate);
+        }
+    });
+</script>
+{% endblock %}

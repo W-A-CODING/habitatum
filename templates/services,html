@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Servicios - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    .services-hero {
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
+        color: var(--blanco);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        text-align: center;
+        border-radius: var(--radio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .services-hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .services-hero p {
+        font-size: 1.25rem;
+        color: var(--azul-medio);
+    }
+    
+    /* Grid de servicios */
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--espacio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .service-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        padding: var(--espacio-lg);
+        box-shadow: var(--sombra-md);
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--sombra-lg);
+    }
+    
+    .service-icon {
+        font-size: 4rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .service-card h3 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .service-card p {
+        color: var(--gris-medio);
+        line-height: 1.6;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .service-card ul {
+        text-align: left;
+        list-style: none;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .service-card ul li {
+        padding: var(--espacio-sm) 0;
+        color: var(--gris-medio);
+    }
+    
+    .service-card ul li:before {
+        content: "✓ ";
+        color: var(--naranja);
+        font-weight: bold;
+        margin-right: var(--espacio-sm);
+    }
+    
+    /* Formulario de asesoría */
+    .asesoria-section {
+        background-color: var(--beige);
+        padding: var(--espacio-xl) var(--espacio-lg);
+        border-radius: var(--radio-lg);
+    }
+    
+    .asesoria-section h2 {
+        text-align: center;
+        color: var(--azul-oscuro);
+        font-size: 2rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .asesoria-section > p {
+        text-align: center;
+        color: var(--gris-medio);
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .form-asesoria {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: var(--blanco);
+        padding: var(--espacio-lg);
+        border-radius: var(--radio-md);
+        box-shadow: var(--sombra-md);
+    }
+    
+    .form-group {
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .form-group label {
+        display: block;
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: var(--espacio-sm) var(--espacio-md);
+        border: 2px solid var(--azul-medio);
+        border-radius: var(--radio-sm);
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--azul-claro);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-submit {
+        text-align: center;
+    }
+    
+    .form-submit button {
+        width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+        .services-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero -->
+    <section class="services-hero">
+        <h1>Nuestros Servicios</h1>
+        <p>Te acompañamos en cada paso hacia tu nuevo hogar</p>
+    </section>
+    
+    <!-- Grid de Servicios -->
+    <section class="services-grid">
+        <!-- Servicio 1 -->
+        <div class="service-card">
+            <div class="service-icon">🏘️</div>
+            <h3>Venta de Propiedades</h3>
+            <p>Ofrecemos una amplia variedad de propiedades cuidadosamente seleccionadas.</p>
+            <ul>
+                <li>Casas residenciales</li>
+                <li>Departamentos</li>
+                <li>Terrenos</li>
+                <li>Locales comerciales</li>
+            </ul>
+            <a href="{% url 'properties:property_list' %}" class="btn btn-secondary">Ver Propiedades</a>
+        </div>
+        
+        <!-- Servicio 2 -->
+        <div class="service-card">
+            <div class="service-icon">💰</div>
+            <h3>Asesoramiento Crediticio</h3>
+            <p>Te ayudamos a encontrar el mejor crédito hipotecario para ti.</p>
+            <ul>
+                <li>Análisis de ingresos</li>
+                <li>Opciones de crédito</li>
+                <li>Infonavit y Fovissste</li>
+                <li>Créditos bancarios</li>
+            </ul>
+            <a href="#asesoria" class="btn btn-primary">Solicitar Asesoría</a>
+        </div>
+        
+        <!-- Servicio 3 -->
+        <div class="service-card">
+            <div class="service-icon">🤝</div>
+            <h3>Apoyo en Venta de Terceros</h3>
+            <p>Ayudamos a propietarios a vender sus inmuebles de forma rápida y segura.</p>
+            <ul>
+                <li>Valuación profesional</li>
+                <li>Marketing digital</li>
+                <li>Visitas coordinadas</li>
+                <li>Asesoría legal</li>
+            </ul>
+            <a href="#asesoria" class="btn btn-secondary">Contáctanos</a>
+        </div>
+    </section>
+    
+    <!-- Formulario de Asesoría -->
+    <section class="asesoria-section" id="asesoria">
+        <h2>Solicita Asesoría Crediticia</h2>
+        <p>Completa el formulario y nos pondremos en contacto contigo lo antes posible</p>
+        
+        <form method="post" action="{% url 'core:credit_advice' %}" class="form-asesoria">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                {{ form.nombre }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                {{ form.email }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.telefono.id_for_label }}">{{ form.telefono.label }}</label>
+                {{ form.telefono }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.ingresos_mensuales.id_for_label }}">{{ form.ingresos_mensuales.label }}</label>
+                {{ form.ingresos_mensuales }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.tipo_credito.id_for_label }}">{{ form.tipo_credito.label }}</label>
+                {{ form.tipo_credito }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.mensaje.id_for_label }}">{{ form.mensaje.label }}</label>
+                {{ form.mensaje }}
+            </div>
+            
+            <div class="form-submit">
+                <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

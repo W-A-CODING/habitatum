@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Habitatum - Venta de propiedades inmobiliarias con asesoría crediticia personalizada">
+    <title>{% block title %}Habitatum - Tu hogar ideal{% endblock %}</title>
+    
+    <!-- Estilos base -->
+    <style>
+        /* Reset y Variables CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Paleta de colores de Habitatum */
+            --azul-oscuro: #1B325F;
+            --azul-medio: #9CC4E4;
+            --beige: #E9F2F9;
+            --azul-claro: #3A89C9;
+            --naranja: #F26C4F;
+            --negro: #000000;
+            --blanco: #ffffff;
+            
+            /* Tipografía */
+            --fuente-principal: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            
+            /* Espaciados */
+            --espacio-sm: 0.5rem;
+            --espacio-md: 1rem;
+            --espacio-lg: 2rem;
+            --espacio-xl: 4rem;
+            
+            /* Bordes */
+            --radio-sm: 4px;
+            --radio-md: 8px;
+            --radio-lg: 12px;
+            
+            /* Sombras */
+            --sombra-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --sombra-md: 0 4px 8px rgba(0,0,0,0.15);
+            --sombra-lg: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        /* Estilos Globales */
+        body {
+            font-family: var(--fuente-principal);
+            color: var(--negro);
+            line-height: 1.6;
+            background-color: var(--blanco);
+        }
+        
+        /* Navbar */
+        .navbar {
+            background-color: var(--azul-oscuro);
+            padding: var(--espacio-md) var(--espacio-lg);
+            box-shadow: var(--sombra-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-logo {
+            color: var(--blanco);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--espacio-sm);
+        }
+        
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: var(--espacio-lg);
+        }
+        
+        .navbar-menu a {
+            color: var(--blanco);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-menu a:hover {
+            color: var(--naranja);
+        }
+        
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--espacio-lg);
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--azul-oscuro);
+            color: var(--blanco);
+            padding: var(--espacio-xl) var(--espacio-lg) var(--espacio-lg);
+            margin-top: var(--espacio-xl);
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--espacio-lg);
+        }
+        
+        .footer-section h3 {
+            color: var(--naranja);
+            margin-bottom: var(--espacio-md);
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: var(--azul-medio);
+            text-decoration: none;
+            display: block;
+            margin-bottom: var(--espacio-sm);
+        }
+        
+        .footer-section a:hover {
+            color: var(--blanco);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: var(--espacio-lg);
+            padding-top: var(--espacio-md);
+            border-top: 1px solid var(--azul-claro);
+            color: var(--azul-medio);
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: var(--espacio-sm) var(--espacio-lg);
+            border-radius: var(--radio-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--naranja);
+            color: var(--blanco);
+        }
+        
+        .btn-primary:hover {
+            background-color: #d85a3f;
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-md);
+        }
+        
+        .btn-secondary {
+            background-color: var(--azul-claro);
+            color: var(--blanco);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--azul-oscuro);
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-md);
+        }
+        
+        /* Mensajes de sistema */
+        .messages {
+            max-width: 1200px;
+            margin: var(--espacio-md) auto;
+            padding: 0 var(--espacio-lg);
+        }
+        
+        .message {
+            padding: var(--espacio-md);
+            margin-bottom: var(--espacio-md);
+            border-radius: var(--radio-md);
+            border-left: 4px solid;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .message.warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .message.info {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: var(--espacio-md);
+            }
+            
+            .navbar-menu {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--espacio-sm);
+            }
+            
+            .container {
+                padding: var(--espacio-md);
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+
+    </style>
+    {% block extra_css %}{% endblock %}
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'core:home' %}" class="navbar-logo">
+                <span>🏠</span>
+                <span>Habitatum</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="{% url 'core:home' %}">Inicio</a></li>
+                <li><a href="{% url 'properties:list' %}">Propiedades</a></li>
+                <li><a href="{% url 'core:services' %}">Servicios</a></li>
+                <li><a href="{% url 'dashboard:login' %}">Panel Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Contenido principal -->
+    <main>
+        {% block content %}
+        <!-- El contenido de cada página va aquí -->
+        {% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Habitatum</h3>
+                <p>Tu hogar ideal te está esperando.</p>
+                <p>Facilitamos la compra de propiedades con asesoría crediticia personalizada.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Enlaces Rápidos</h3>
+                <a href="{% url 'core:home' %}">Inicio</a>
+                <a href="{% url 'properties:list' %}">Ver Propiedades</a>
+                <a href="{% url 'core:services' %}">Nuestros Servicios</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p>📧 info@habitatum.com</p>
+                <p>📱 222 123 4567</p>
+                <p>📍 Puebla, México</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Horario</h3>
+                <p>Lunes a Viernes</p>
+                <p>9:00 AM - 6:00 PM</p>
+                <p>Sábados</p>
+                <p>10:00 AM - 2:00 PM</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Habitatum. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

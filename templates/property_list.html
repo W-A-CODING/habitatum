@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block title %}Galería de Propiedades - Habitatum{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-list-header {
+        text-align: center;
+        margin-bottom: var(--espacio-xl);
+        padding: var(--espacio-lg);
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
+        color: var(--blanco);
+        border-radius: var(--radio-lg);
+    }
+    
+    .property-list-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .property-list-header p {
+        font-size: 1.125rem;
+        color: var(--azul-medio);
+    }
+    
+    /* Barra de filtros y búsqueda */
+    .filters-bar {
+        background-color: var(--blanco);
+        padding: var(--espacio-lg);
+        border-radius: var(--radio-md);
+        box-shadow: var(--sombra-md);
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    .filters-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--espacio-md);
+        align-items: end;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group label {
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+        font-size: 0.875rem;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        padding: var(--espacio-sm) var(--espacio-md);
+        border: 2px solid var(--azul-medio);
+        border-radius: var(--radio-sm);
+        font-size: 1rem;
+    }
+    
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: var(--azul-claro);
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: var(--espacio-sm);
+    }
+    
+    /* Estadísticas */
+    .stats-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--espacio-lg);
+        padding: var(--espacio-md);
+        background-color: var(--beige);
+        border-radius: var(--radio-md);
+    }
+    
+    .stats-bar p {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+    }
+    
+    /* Grid de propiedades */
+    .properties-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--espacio-lg);
+        margin-bottom: var(--espacio-xl);
+    }
+    
+    .property-card {
+        background-color: var(--blanco);
+        border-radius: var(--radio-lg);
+        overflow: hidden;
+        box-shadow: var(--sombra-md);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--negro);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--sombra-lg);
+    }
+    
+    .property-card-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        background-color: var(--beige);
+    }
+    
+    .property-card-badge {
+        position: absolute;
+        top: var(--espacio-md);
+        right: var(--espacio-md);
+        background-color: var(--naranja);
+        color: var(--blanco);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .property-card-content {
+        padding: var(--espacio-md);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .property-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .property-card-location {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: var(--espacio-md);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .property-card-details {
+        display: flex;
+        gap: var(--espacio-md);
+        margin-bottom: var(--espacio-md);
+        padding-bottom: var(--espacio-md);
+        border-bottom: 1px solid var(--beige);
+        font-size: 0.875rem;
+        color: var(--gris-medio);
+    }
+    
+    .property-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+    
+    .property-card-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--naranja);
+    }
+    
+    .property-card-link {
+        color: var(--azul-claro);
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    /* Sin resultados */
+    .no-results {
+        text-align: center;
+        padding: var(--espacio-xl);
+        background-color: var(--beige);
+        border-radius: var(--radio-lg);
+    }
+    
+    .no-results-icon {
+        font-size: 4rem;
+        margin-bottom: var(--espacio-md);
+    }
+    
+    .no-results h3 {
+        color: var(--azul-oscuro);
+        font-size: 1.5rem;
+        margin-bottom: var(--espacio-sm);
+    }
+    
+    .no-results p {
+        color: var(--gris-medio);
+        margin-bottom: var(--espacio-lg);
+    }
+    
+    @media (max-width: 768px) {
+        .property-list-header h1 {
+            font-size: 2rem;
+        }
+        
+        .filters-form {
+            grid-template-columns: 1fr;
+        }
+        
+        .properties-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-bar {
+            flex-direction: column;
+            gap: var(--espacio-sm);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="property-list-header">
+        <h1>Todas las Propiedades</h1>
+        <p>Encuentra el hogar perfecto para ti</p>
+    </div>
+    
+    <!-- Filtros y Búsqueda -->
+    <div class="filters-bar">
+        <form method="get" class="filters-form">
+            <div class="filter-group">
+                <label for="search">Buscar</label>
+                <input type="text" id="search" name="q" placeholder="Nombre o ubicación..." value="{{ busqueda_actual|default:'' }}">
+            </div>
+            
+            <div class="filter-group">
+                <label for="tipo">Tipo de Inmueble</label>
+                <select id="tipo" name="tipo">
+                    <option value="">Todos los tipos</option>
+                    {% for tipo in tipos_disponibles %}
+                    <option value="{{ tipo }}" {% if tipo == tipo_actual %}selected{% endif %}>
+                        {% if tipo == 'casa' %}Casa
+                        {% elif tipo == 'departamento' %}Departamento
+                        {% elif tipo == 'terreno' %}Terreno
+                        {% elif tipo == 'local' %}Local Comercial
+                        {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-buttons">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="{% url 'properties:property_list' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="stats-bar">
+        <p>📊 Mostrando {{ total_propiedades }} propiedad{{ total_propiedades|pluralize:"es" }}</p>
+        {% if busqueda_actual or tipo_actual %}
+        <p style="color: var(--gris-medio); font-weight: normal;">
+            Filtros activos
+            {% if busqueda_actual %}: "{{ busqueda_actual }}"{% endif %}
+            {% if tipo_actual %} - {{ tipo_actual }}{% endif %}
+        </p>
+        {% endif %}
+    </div>
+    
+    <!-- Grid de Propiedades -->
+    {% if propiedades %}
+    <div class="properties-grid">
+        {% for propiedad in propiedades %}
+        <a href="{% url 'properties:property_detail' propiedad.pk %}" class="property-card">
+            <div style="position: relative;">
+                {% if propiedad.imagen_principal %}
+                <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="property-card-image">
+                {% else %}
+                <div class="property-card-image" style="display: flex; align-items: center; justify-content: center; color: var(--gris-medio);">
+                    🏠 Sin imagen
+                </div>
+                {% endif %}
+                <span class="property-card-badge">{{ propiedad.get_tipo_inmueble_display }}</span>
+            </div>
+            
+            <div class="property-card-content">
+                <h3 class="property-card-title">{{ propiedad.nombre }}</h3>
+                <p class="property-card-location">📍 {{ propiedad.ubicacion }}</p>
+                
+                <div class="property-card-details">
+                    <span>📐 {{ propiedad.metros_cuadrados }} m²</span>
+                </div>
+                
+                <div class="property-card-footer">
+                    <span class="property-card-price">${{ propiedad.precio|floatformat:0 }} MXN</span>
+                    <span class="property-card-link">Ver detalles →</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Sin Resultados -->
+    <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <h3>No se encontraron propiedades</h3>
+        <p>Intenta ajustar tus filtros de búsqueda o explora todas nuestras opciones disponibles</p>
+        <a href="{% url 'properties:property_list' %}" class="btn btn-primary">Ver Todas las Propiedades</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

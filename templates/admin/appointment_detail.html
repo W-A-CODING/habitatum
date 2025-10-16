@@ -1,0 +1,375 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Detalle de Cita - {{ cita.nombre_cliente }} - Panel Admin{% endblock %}
+
+{% block page_title %}Detalle de Cita{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-header {
+        background-color: var(--blanco);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .detail-title-section h3 {
+        color: var(--azul-oscuro);
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .detail-badge.normal {
+        background-color: var(--azul-medio);
+        color: var(--azul-oscuro);
+    }
+    
+    .detail-badge.prioritaria {
+        background-color: var(--naranja);
+        color: var(--blanco);
+    }
+    
+    .detail-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+    
+    .detail-card {
+        background-color: var(--blanco);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+    }
+    
+    .detail-card h4 {
+        color: var(--azul-oscuro);
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--beige);
+    }
+    
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+    
+    .detail-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .detail-row {
+        display: flex;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--beige);
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--azul-oscuro);
+        width: 40%;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .detail-value {
+        color: var(--gris-medio);
+        width: 60%;
+    }
+    
+    .detail-value.highlight {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        font-size: 1.125rem;
+    }
+    
+    .property-card-detail {
+        background-color: var(--beige);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .property-card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .property-card-content {
+        padding: 1rem;
+    }
+    
+    .property-card-title {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .property-card-info {
+        color: var(--gris-medio);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .property-card-price {
+        color: var(--naranja);
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    
+    .property-link {
+        display: inline-block;
+        margin-top: 1rem;
+        color: var(--azul-claro);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .property-link:hover {
+        text-decoration: underline;
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        border: 1px solid #17a2b8;
+        border-radius: 8px;
+        padding: 1rem;
+        color: #0c5460;
+        margin-top: 1rem;
+    }
+    
+    .alert-info strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .financial-highlight {
+        background-color: #fff3cd;
+        border-left: 4px solid var(--naranja);
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1rem;
+    }
+    
+    .financial-highlight h5 {
+        color: var(--azul-oscuro);
+        margin-bottom: 0.75rem;
+    }
+    
+    @media (max-width: 968px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .detail-label,
+        .detail-value {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header con Acciones -->
+<div class="detail-header">
+    <div class="detail-title-section">
+        <h3>{{ cita.nombre_cliente }}</h3>
+        <span class="detail-badge {{ cita.tipo_cita }}">
+            {{ cita.get_tipo_cita_display }}
+        </span>
+    </div>
+    
+    <div class="detail-actions">
+        <a href="{% url 'dashboard:calendar' %}" class="btn btn-secondary">← Volver al Calendario</a>
+    </div>
+</div>
+
+<!-- Layout Principal -->
+<div class="detail-layout">
+    <!-- Columna Principal -->
+    <div>
+        <!-- Información del Cliente -->
+        <div class="detail-card">
+            <h4>👤 Información del Cliente</h4>
+            
+            <div class="detail-section">
+                <div class="detail-row">
+                    <div class="detail-label">Nombre Completo:</div>
+                    <div class="detail-value highlight">{{ cita.nombre_cliente }}</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">📧 Email:</div>
+                    <div class="detail-value">
+                        <a href="mailto:{{ cita.email_cliente }}" style="color: var(--azul-claro);">
+                            {{ cita.email_cliente }}
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">📱 Teléfono:</div>
+                    <div class="detail-value">
+                        <a href="tel:{{ cita.telefono_cliente }}" style="color: var(--azul-claro);">
+                            {{ cita.telefono_cliente }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información de la Cita -->
+        <div class="detail-card">
+            <h4>📅 Información de la Cita</h4>
+            
+            <div class="detail-section">
+                <div class="detail-row">
+                    <div class="detail-label">Fecha y Hora:</div>
+                    <div class="detail-value highlight">{{ cita.fecha_cita|date:"d/m/Y - H:i" }} hrs</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Tipo de Cita:</div>
+                    <div class="detail-value">{{ cita.get_tipo_cita_display }}</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Fecha de Registro:</div>
+                    <div class="detail-value">{{ cita.fecha_creacion|date:"d/m/Y - H:i" }} hrs</div>
+                </div>
+                
+                {% if cita.google_event_id %}
+                <div class="detail-row">
+                    <div class="detail-label">Estado en Google:</div>
+                    <div class="detail-value">✅ Sincronizado con Google Calendar</div>
+                </div>
+                {% else %}
+                <div class="detail-row">
+                    <div class="detail-label">Estado en Google:</div>
+                    <div class="detail-value">⚠️ No sincronizado</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Información Financiera (solo para citas prioritarias) -->
+        {% if cita.tipo_cita == 'prioritaria' %}
+        <div class="detail-card">
+            <h4>💰 Información Financiera</h4>
+            
+            <div class="financial-highlight">
+                <h5>Datos del Cliente para Asesoría Crediticia</h5>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Ingresos Mensuales:</div>
+                    <div class="detail-value highlight">${{ cita.ingresos_mensuales|floatformat:2 }} MXN</div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Tipo de Crédito:</div>
+                    <div class="detail-value">{{ cita.get_tipo_credito_display }}</div>
+                </div>
+            </div>
+            
+            <div class="alert-info">
+                <strong>💡 Recomendación:</strong>
+                Prepara información sobre opciones de {{ cita.get_tipo_credito_display|lower }} 
+                y calcula la capacidad de pago del cliente antes de la cita.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div>
+        <!-- Propiedad de Interés -->
+        <div class="detail-card">
+            <h4>🏠 Propiedad de Interés</h4>
+            
+            <div class="property-card-detail">
+                {% if cita.property.imagen_principal %}
+                <img src="{{ cita.property.imagen_principal.url }}" alt="{{ cita.property.nombre }}" class="property-card-image">
+                {% else %}
+                <div class="property-card-image" style="display: flex; align-items: center; justify-content: center; background-color: var(--beige); color: var(--gris-medio);">
+                    🏠 Sin imagen
+                </div>
+                {% endif %}
+                
+                <div class="property-card-content">
+                    <h5 class="property-card-title">{{ cita.property.nombre }}</h5>
+                    
+                    <div class="property-card-info">
+                        📍 {{ cita.property.ubicacion }}
+                    </div>
+                    
+                    <div class="property-card-info">
+                        📐 {{ cita.property.metros_cuadrados }} m² | 
+                        🏠 {{ cita.property.get_tipo_inmueble_display }}
+                    </div>
+                    
+                    <div class="property-card-price">
+                        ${{ cita.property.precio|floatformat:0 }} MXN
+                    </div>
+                    
+                    <a href="{% url 'properties:property_detail' cita.property.pk %}" class="property-link" target="_blank">
+                        Ver propiedad completa →
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Acciones Rápidas -->
+        <div class="detail-card">
+            <h4>⚡ Acciones Rápidas</h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="mailto:{{ cita.email_cliente }}?subject=Confirmación de Cita - {{ cita.property.nombre }}" class="btn btn-secondary" style="text-align: center;">
+                    📧 Enviar Email
+                </a>
+                
+                <a href="tel:{{ cita.telefono_cliente }}" class="btn btn-secondary" style="text-align: center;">
+                    📱 Llamar al Cliente
+                </a>
+                
+                <a href="{% url 'dashboard:calendar' %}?mes={{ cita.fecha_cita.month }}&anio={{ cita.fecha_cita.year }}" class="btn btn-primary" style="text-align: center;">
+                    📅 Ver en Calendario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
