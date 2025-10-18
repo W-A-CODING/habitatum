@@ -48,14 +48,14 @@ def admin_login_view(request):
             login(request, user)
             
             # Mensaje de bienvenida
-            messages.success(request, f'¡Bienvenido, {user.username}!')
+            messages.success(request, f'¡Bienvenido, {user.username}!', extra_tags='alert alert-success')
             
             # Redirigir a la página solicitada o al calendario por defecto
             next_url = request.GET.get('next', 'dashboard:calendar')
             return redirect(next_url)
         else:
             # Credenciales incorrectas
-            messages.error(request, 'Usuario o contraseña incorrectos.')
+            messages.error(request, 'Usuario o contraseña incorrectos.', extra_tags='alert alert-danger')
     
     # Renderizar el formulario de login
     return render(request, 'admin/login.html', {
@@ -78,7 +78,7 @@ def admin_logout_view(request):
     logout(request)
     
     # Mensaje de despedida
-    messages.success(request, f'Hasta luego, {username}. Sesión cerrada correctamente.')
+    messages.success(request, f'Hasta luego, {username}. Sesión cerrada correctamente.', extra_tags='alert alert-success')
     
     # Redirigir al login
     return redirect('dashboard:login')
@@ -198,9 +198,9 @@ def calendar_view(request):
         'anio_actual': anio_actual,
         'nombre_mes': nombres_meses[mes_actual],
         'mes_anterior': mes_anterior,
-        'anio_anterior': anio_anterior,
+        'anio_anterior': anio_actual - 1 if mes_anterior == 12 else anio_anterior,
         'mes_siguiente': mes_siguiente,
-        'anio_siguiente': anio_siguiente,
+        'anio_siguiente': anio_actual + 1 if mes_siguiente == 1 else anio_siguiente,
         'dia_seleccionado': dia_seleccionado,
         'citas_del_dia': citas_del_dia,
         'total_citas_mes': total_citas_mes,
@@ -276,6 +276,9 @@ def admin_property_list_view(request):
     
     # Estadísticas
     total_propiedades = Property.objects.count()
+    total_casas = Property.objects.filter(tipo_inmueble='casa').count()
+    total_departamentos = Property.objects.filter(tipo_inmueble='departamento').count()
+    total_terrenos = Property.objects.filter(tipo_inmueble='terreno').count()
     propiedades_visibles = Property.objects.filter(is_visible=True).count()
     propiedades_ocultas = Property.objects.filter(is_visible=False).count()
     
@@ -287,6 +290,9 @@ def admin_property_list_view(request):
     contexto = {
         'propiedades': propiedades,
         'total_propiedades': total_propiedades,
+        'total_casas': total_casas,
+        'total_departamentos': total_departamentos,
+        'total_terrenos': total_terrenos,
         'propiedades_visibles': propiedades_visibles,
         'propiedades_ocultas': propiedades_ocultas,
         'tipos_disponibles': tipos_disponibles,
@@ -329,14 +335,14 @@ def property_create_view(request):
             
             messages.success(
                 request,
-                f'Propiedad "{nueva_propiedad.nombre}" creada exitosamente.'
+                f'Propiedad "{nueva_propiedad.nombre}" creada exitosamente.', extra_tags='alert alert-success'
             )
             
             return redirect('dashboard:property_list')
         else:
             messages.error(
                 request,
-                'Por favor corrige los errores en el formulario.'
+                'Por favor corrige los errores en el formulario.', extra_tags='alert alert-danger'
             )
     else:
         form = PropertyForm()
@@ -395,14 +401,14 @@ def property_update_view(request, pk):
             
             messages.success(
                 request,
-                f'Propiedad "{propiedad_actualizada.nombre}" actualizada exitosamente.'
+                f'Propiedad "{propiedad_actualizada.nombre}" actualizada exitosamente.', extra_tags='alert alert-success'
             )
             
             return redirect('dashboard:property_list')
         else:
             messages.error(
                 request,
-                'Por favor corrige los errores en el formulario.'
+                'Por favor corrige los errores en el formulario.', extra_tags='alert alert-danger'
             )
     else:
         form = PropertyForm(instance=propiedad)
@@ -451,7 +457,7 @@ def property_toggle_visibility_view(request, pk):
     
     messages.success(
         request,
-        f'Propiedad "{propiedad.nombre}" {accion} exitosamente. Estado actual: {estado}.'
+        f'Propiedad "{propiedad.nombre}" {accion} exitosamente. Estado actual: {estado}.', extra_tags='alert alert-success'
     )
     
     # Redirigir de vuelta a la lista
@@ -506,14 +512,14 @@ def property_delete_view(request, pk):
             messages.success(
                 request,
                 f'Propiedad "{nombre_propiedad}" eliminada permanentemente. '
-                f'Se eliminaron también {citas_asociadas} cita(s) asociada(s).'
+                f'Se eliminaron también {citas_asociadas} cita(s) asociada(s).', extra_tags='alert alert-success'
             )
             
             return redirect('dashboard:property_list')
         else:
             messages.error(
                 request,
-                'Confirmación incorrecta. La propiedad no fue eliminada.'
+                'Confirmación incorrecta. La propiedad no fue eliminada.', extra_tags='alert alert-danger'
             )
             return redirect('dashboard:property_delete', pk=pk)
     
@@ -605,7 +611,7 @@ def assign_normal_days_view(request):
         
         messages.success(
             request,
-            f'Días disponibles actualizados para citas normales en {nombres_meses[mes_actual]} {anio_actual}.'
+            f'Días disponibles actualizados para citas normales en {nombres_meses[mes_actual]} {anio_actual}.', extra_tags='alert alert-success'
         )
         
         # Redirigir para evitar reenvío del formulario
@@ -646,9 +652,9 @@ def assign_normal_days_view(request):
         'anio_actual': anio_actual,
         'nombre_mes': nombres_meses[mes_actual],
         'mes_anterior': mes_anterior,
-        'anio_anterior': anio_anterior,
+        'anio_anterior': anio_actual - 1 if mes_anterior == 12 else anio_anterior,
         'mes_siguiente': mes_siguiente,
-        'anio_siguiente': anio_siguiente,
+        'anio_siguiente': anio_actual + 1 if mes_siguiente == 1 else anio_siguiente,
         'tipo_cita': 'normal',
         'titulo_pagina': f'Días Disponibles - Citas Normales - {nombres_meses[mes_actual]} {anio_actual}'
     }
@@ -713,7 +719,7 @@ def assign_priority_days_view(request):
         
         messages.success(
             request,
-            f'Días disponibles actualizados para citas prioritarias en {nombres_meses[mes_actual]} {anio_actual}.'
+            f'Días disponibles actualizados para citas prioritarias en {nombres_meses[mes_actual]} {anio_actual}.', extra_tags='alert alert-success'
         )
         
         return redirect(f"{request.path}?mes={mes_actual}&anio={anio_actual}")
@@ -753,9 +759,9 @@ def assign_priority_days_view(request):
         'anio_actual': anio_actual,
         'nombre_mes': nombres_meses[mes_actual],
         'mes_anterior': mes_anterior,
-        'anio_anterior': anio_anterior,
+        'anio_anterior': anio_actual - 1 if mes_anterior == 12 else anio_anterior,
         'mes_siguiente': mes_siguiente,
-        'anio_siguiente': anio_siguiente,
+        'anio_siguiente': anio_actual + 1 if mes_siguiente == 1 else anio_siguiente,
         'tipo_cita': 'prioritaria',
         'titulo_pagina': f'Días Disponibles - Citas Prioritarias - {nombres_meses[mes_actual]} {anio_actual}'
     }
