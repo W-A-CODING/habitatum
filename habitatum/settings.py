@@ -151,8 +151,8 @@ DEFAULT_FROM_EMAIL = 'habitatum3@gmail.com'
 # Estas credenciales se obtienen de Google Cloud Console
 GOOGLE_OAUTH_CREDENTIALS = {
     "web": {
-        "client_id": "TU_CLIENT_ID.apps.googleusercontent.com",
-        "client_secret": "TU_CLIENT_SECRET",
+        "client_id": "934681525343-agoqg2fbup7glsnmrtj9ivqglc9dp4cu.apps.googleusercontent.com",
+        "client_secret": "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",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",

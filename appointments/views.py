@@ -194,42 +194,104 @@ def appointment_confirmation_view(request):
 
 def enviar_notificacion_nueva_cita(cita):
     """
-    Función auxiliar para enviar email al administrador
-    cuando se crea una nueva cita.
+    Envía un email de notificación al administrador cuando se crea una nueva cita.
     
+    Esta función:
+    1. Renderiza un template HTML con los datos de la cita
+    2. Envía el email al administrador configurado en settings
+    3. Maneja errores de envío de forma segura
+    
+    Parámetros:
+        cita: Objeto Appointment con los datos de la cita
+        
+    Retorna:
+        bool: True si se envió correctamente, False en caso contrario
     """
-    print(f"\n{'='*50}")
-    print(f"NUEVA CITA AGENDADA")
-    print(f"{'='*50}")
-    print(f"Cliente: {cita.nombre_cliente}")
-    print(f"Email: {cita.email_cliente}")
-    print(f"Teléfono: {cita.telefono_cliente}")
-    print(f"Propiedad: {cita.property.nombre}")
-    print(f"Fecha: {cita.fecha_cita}")
-    print(f"Tipo: {cita.tipo_cita}")
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    from django.conf import settings
     
-    if cita.tipo_cita == 'prioritaria':
-        print(f"\nDATOS FINANCIEROS:")
-        print(f"Ingresos mensuales: ${cita.ingresos_mensuales:,.2f}")
-        print(f"Tipo de crédito: {cita.get_tipo_credito_display()}")
-    
-    print(f"{'='*50}\n")
-    
+    try:
+        # Preparar asunto del email
+        tipo_cita_texto = "Prioritaria" if cita.tipo_cita == 'prioritaria' else "Normal"
+        asunto = f"🏠 Nueva Cita {tipo_cita_texto} - {cita.nombre_cliente}"
+        
+        # Renderizar template HTML
+        contexto_email = {
+            'cita': cita,
+            'propiedad': cita.property,
+        }
+        
+        mensaje_html = render_to_string('email/new_appointment_email.html', contexto_email)
+        
+        # Crear versión de texto plano
+        mensaje_texto = f"""
+Nueva cita agendada en Habitatum
 
+Tipo: Cita {tipo_cita_texto}
+Cliente: {cita.nombre_cliente}
+Email: {cita.email_cliente}
+Teléfono: {cita.telefono_cliente}
+Fecha: {cita.fecha_cita.strftime('%d/%m/%Y a las %H:%M')} hrs
+
+Propiedad: {cita.property.nombre}
+Ubicación: {cita.property.ubicacion}
+"""
+        
+        if cita.tipo_cita == 'prioritaria':
+            mensaje_texto += f"""
+Información Financiera:
+- Ingresos mensuales: ${cita.ingresos_mensuales:,.2f} MXN
+- Tipo de crédito: {cita.get_tipo_credito_display()}
+"""
+        
+        # Enviar email
+        resultado = send_mail(
+            subject=asunto,
+            message=mensaje_texto,
+            html_message=mensaje_html,
+            from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@habitatum.com',
+            recipient_list=[settings.ADMIN_EMAIL if hasattr(settings, 'ADMIN_EMAIL') else 'admin@habitatum.com'],
+            fail_silently=False,
+        )
+        
+        print(f"✅ Email de notificación enviado correctamente")
+        return True
+        
+    except Exception as error:
+        print(f"❌ Error al enviar email de notificación: {error}")
+        return False
 
 
 def crear_evento_google_calendar(cita):
     """
-    Función auxiliar para crear un evento en Google Calendar
-    cuando se agenda una cita.
+    Crea un evento en Google Calendar para la cita agendada.
     
+    Esta función:
+    1. Importa el servicio de Google Calendar
+    2. Intenta crear el evento con todos los detalles
+    3. Maneja errores de forma segura sin interrumpir el flujo
+    
+    Parámetros:
+        cita: Objeto Appointment con los datos de la cita
+        
+    Retorna:
+        str: ID del evento creado, o None si falla
     """
-    print(f"\n{'='*50}")
-    print(f"CREAR EVENTO EN GOOGLE CALENDAR")
-    print(f"{'='*50}")
-    print(f"Título: Cita - {cita.property.nombre}")
-    print(f"Cliente: {cita.nombre_cliente}")
-    print(f"Fecha: {cita.fecha_cita}")
-    print(f"Ubicación: {cita.property.ubicacion}")
-    print(f"{'='*50}\n")
-   
+    try:
+        # Importar el servicio de Google Calendar
+        from integrations.services.google_calendar_service import crear_evento_en_google_calendar
+        
+        # Crear evento en Google Calendar
+        id_evento = crear_evento_en_google_calendar(cita)
+        
+        if id_evento:
+            print(f"✅ Evento creado en Google Calendar con ID: {id_evento}")
+            return id_evento
+        else:
+            print(f"⚠️ No se pudo crear el evento en Google Calendar (posiblemente no hay tokens configurados)")
+            return None
+            
+    except Exception as error:
+        print(f"❌ Error al crear evento en Google Calendar: {error}")
+        return None
