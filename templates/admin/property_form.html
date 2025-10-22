@@ -1,8 +1,8 @@
 {% extends 'admin_base.html' %}
 
-{% block title %}{{ 'Editar' if property else 'Nueva' }} Propiedad - Panel Admin{% endblock %}
+{% block title %}{% if propiedad %}Editar{% else %}Nueva{% endif %} Propiedad - Panel Admin{% endblock %}
 
-{% block page_title %}{{ 'Editar' if property else 'Nueva' }} Propiedad{% endblock %}
+{% block page_title %}{% if propiedad %}Editar{% else %}Nueva{% endif %} Propiedad{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -179,14 +179,14 @@
     <!-- Header -->
     <div class="form-header">
         <h3>
-            {% if property %}
+            {% if propiedad %}
             ✏️ Editar Propiedad
             {% else %}
             ➕ Nueva Propiedad
             {% endif %}
         </h3>
         <p>
-            {% if property %}
+            {% if propiedad %}
             Actualiza la información de la propiedad
             {% else %}
             Completa todos los campos para agregar una nueva propiedad al catálogo
@@ -288,9 +288,9 @@
                     {{ form.imagen_principal }}
                     <span class="help-text">Imagen principal de la propiedad (JPG, PNG, máx 5MB)</span>
                     
-                    {% if property and property.imagen_principal %}
+                    {% if  propiedad and propiedad.imagen_principal %}
                     <div class="current-image">
-                        <img src="{{ property.imagen_principal.url }}" alt="Imagen actual">
+                        <img src="{{ propiedad.imagen_principal.url }}" alt="Imagen actual">
                         <p>📸 Imagen actual - Sube una nueva para reemplazarla</p>
                     </div>
                     {% endif %}
@@ -301,7 +301,7 @@
         <!-- Acciones -->
         <div class="form-actions">
             <button type="submit" class="btn btn-success">
-                {% if property %}
+                {% if propiedad %}
                 💾 Guardar Cambios
                 {% else %}
                 ✅ Crear Propiedad

@@ -3,7 +3,7 @@
 {% block title %}Asignar Días - {{ nombre_mes }} {{ anio_actual }} - Panel Admin{% endblock %}
 
 {% block page_title %}
-    Asignar Días para Citas {{ 'Normales' if tipo_cita == 'normal' else 'Prioritarias' }}
+    Asignar Días para Citas {% if tipo_cita == 'normal' %}Normales{% else %}Prioritarias{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -341,7 +341,7 @@
 <div class="info-note">
     <strong>💡 Nota:</strong>
     Este calendario muestra de forma visual los días que tienen citas agendadas de tipo 
-    {{ 'normal' if tipo_cita == 'normal' else 'prioritaria' }}. 
+    {% if tipo_cita == 'normal' %}normal{% else %}prioritaria{% endif %}. 
     Puedes ver las citas específicas de cada día desde el 
     <a href="{% url 'dashboard:calendar' %}" style="color: #0c5460; font-weight: 600;">calendario principal</a>.
 </div>

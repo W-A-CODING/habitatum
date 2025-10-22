@@ -209,7 +209,7 @@
             </div>
         </div>
         
-        <span class="integration-status {{ 'conectado' if google_conectado else 'desconectado' }}">
+        <span class="integration-status {% if google_conectado %}conectado{% else %}desconectado{% endif %}">
             {% if google_conectado %}
             ✅ Conectado
             {% else %}
