@@ -335,7 +335,8 @@ def property_create_view(request):
             
             messages.success(
                 request,
-                f'Propiedad "{nueva_propiedad.nombre}" creada exitosamente.', extra_tags='alert alert-success'
+                f'Propiedad "{nueva_propiedad.nombre}" creada exitosamente con {len(imagenes_adicionales)} imagen(es) adicional(es).',
+                extra_tags='alert alert-success'
             )
             
             return redirect('dashboard:property_list')
@@ -399,10 +400,13 @@ def property_update_view(request, pk):
                     id__in=imagenes_a_eliminar
                 ).delete()
             
-            messages.success(
-                request,
-                f'Propiedad "{propiedad_actualizada.nombre}" actualizada exitosamente.', extra_tags='alert alert-success'
-            )
+            mensaje = f'Propiedad "{propiedad_actualizada.nombre}" actualizada exitosamente.'
+            if imagenes_adicionales:
+                mensaje += f' Se agregaron {len(imagenes_adicionales)} imagen(es).'
+            if imagenes_a_eliminar:
+                mensaje += f' Se eliminaron {len(imagenes_a_eliminar)} imagen(es).'
+
+            messages.success(request, mensaje, extra_tags='alert alert-success')
             
             return redirect('dashboard:property_list')
         else:

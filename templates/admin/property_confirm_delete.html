@@ -1,26 +1,26 @@
 {% extends 'admin_base.html' %}
 
-{% block title %}Eliminar Propiedad - {{ property.nombre }} - Panel Admin{% endblock %}
+{% block title %}Eliminar Propiedad - {{ propiedad.nombre }} - Panel Admin{% endblock %}
 
 {% block page_title %}Confirmar Eliminación{% endblock %}
 
 {% block extra_css %}
 <style>
     .confirm-container {
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto;
     }
     
     .confirm-card {
         background-color: var(--blanco);
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         overflow: hidden;
     }
     
     .confirm-header {
-        background-color: var(--rojo);
-        color: var(--blanco);
+        background-color: #dc3545;
+        color: white;
         padding: 2rem;
         text-align: center;
     }
@@ -35,31 +35,27 @@
         margin-bottom: 0.5rem;
     }
     
-    .confirm-header p {
-        opacity: 0.9;
-    }
-    
     .confirm-body {
         padding: 2rem;
     }
     
     .property-preview {
-        background-color: var(--beige);
+        background-color: #f8f9fa;
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        border-left: 4px solid var(--rojo);
+        border-left: 4px solid #dc3545;
     }
     
     .property-preview-title {
-        color: var(--azul-oscuro);
+        color: #1B325F;
         font-weight: 700;
         font-size: 1.25rem;
         margin-bottom: 0.5rem;
     }
     
     .property-preview-info {
-        color: var(--gris-medio);
+        color: #6c757d;
         font-size: 0.875rem;
         margin-bottom: 0.25rem;
     }
@@ -75,9 +71,6 @@
     .warning-box h4 {
         color: #856404;
         margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
     }
     
     .warning-box ul {
@@ -99,6 +92,48 @@
         flex-shrink: 0;
     }
     
+    .confirm-input-box {
+        background-color: #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 2px solid #dc3545;
+    }
+    
+    .confirm-input-box label {
+        display: block;
+        color: #1B325F;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .confirm-input-box input {
+        width: 100%;
+        padding: 1rem;
+        border: 3px solid #dc3545;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        letter-spacing: 2px;
+    }
+    
+    .confirm-input-box input:focus {
+        outline: none;
+        border-color: #c82333;
+        box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+    }
+    
+    .confirm-input-box .help-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.75rem;
+        text-align: center;
+        font-weight: 600;
+    }
+    
     .confirm-actions {
         display: flex;
         gap: 1rem;
@@ -107,6 +142,9 @@
     .confirm-actions button,
     .confirm-actions a {
         flex: 1;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
     }
     
     @media (max-width: 768px) {
@@ -131,36 +169,81 @@
         <div class="confirm-body">
             <!-- Vista Previa de la Propiedad -->
             <div class="property-preview">
-                <div class="property-preview-title">{{ property.nombre }}</div>
-                <div class="property-preview-info">📍 {{ property.ubicacion }}</div>
-                <div class="property-preview-info">💰 ${{ property.precio|floatformat:0 }} MXN</div>
-                <div class="property-preview-info">📐 {{ property.metros_cuadrados }} m² | 🏠 {{ property.get_tipo_inmueble_display }}</div>
+                <div class="property-preview-title">{{ propiedad.nombre }}</div>
+                <div class="property-preview-info">📍 {{ propiedad.ubicacion }}</div>
+                <div class="property-preview-info">💰 ${{ propiedad.precio|floatformat:0 }} MXN</div>
+                <div class="property-preview-info">📐 {{ propiedad.metros_cuadrados }} m² | 🏠 {{ propiedad.get_tipo_inmueble_display }}</div>
             </div>
             
             <!-- Advertencias -->
             <div class="warning-box">
-                <h4>⚠️ Importante</h4>
+                <h4>⚠️ Lo que se eliminará:</h4>
                 <ul>
                     <li>Esta propiedad será eliminada permanentemente</li>
-                    <li>Las imágenes asociadas también se eliminarán</li>
-                    <li>Ya no aparecerá en el sitio público</li>
+                    <li>Se eliminarán {{ total_imagenes }} imagen(es)</li>
+                    <li>Se eliminarán {{ total_citas }} cita(s) asociada(s)</li>
                     <li>Esta acción NO se puede deshacer</li>
                 </ul>
             </div>
             
             <!-- Formulario de Confirmación -->
-            <form method="post">
+            <form method="post" id="deleteForm">
                 {% csrf_token %}
+                
+                <!-- Campo de confirmación - ESTE ES EL QUE FALTABA -->
+                <div class="confirm-input-box">
+                    <label for="confirmar">
+                        Para confirmar, escribe: <span style="color: #dc3545;">ELIMINAR</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="confirmar" 
+                        name="confirmar" 
+                        placeholder="Escribe: ELIMINAR"
+                        required
+                        autocomplete="off"
+                        style="text-transform: uppercase;">
+                    <p class="help-text">⚠️ Debe ser exactamente: ELIMINAR (en mayúsculas)</p>
+                </div>
+                
                 <div class="confirm-actions">
                     <a href="{% url 'dashboard:property_list' %}" class="btn btn-secondary">
                         ← Cancelar
                     </a>
                     <button type="submit" class="btn btn-danger">
-                        Sí, Eliminar Propiedad
+                        ✓ Sí, Eliminar Definitivamente
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+// Validar antes de enviar
+document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    const input = document.getElementById('confirmar');
+    const valor = input.value.trim().toUpperCase();
+    
+    if (valor !== 'ELIMINAR') {
+        e.preventDefault();
+        alert('❌ ERROR: Debes escribir exactamente "ELIMINAR" en mayúsculas para confirmar.');
+        input.value = '';
+        input.focus();
+        return false;
+    }
+    
+    // Confirmación adicional con JavaScript
+    const confirmar = confirm('⚠️ ÚLTIMA ADVERTENCIA: ¿Estás 100% seguro de que quieres eliminar esta propiedad? Esta acción es IRREVERSIBLE.');
+    if (!confirmar) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Convertir automáticamente a mayúsculas mientras escribe
+document.getElementById('confirmar').addEventListener('input', function(e) {
+    this.value = this.value.toUpperCase();
+});
+</script>
 {% endblock %}
