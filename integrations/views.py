@@ -1,3 +1,6 @@
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # IMPORTANTE: Permite OAuth sobre HTTP en desarrollo
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -61,22 +64,24 @@ def google_authorize_view(request):
     """
     try:
         from google_auth_oauthlib.flow import Flow
-        import os
         
-        # Verificar que las credenciales estén configuradas
+        # Verificar credenciales
         if not hasattr(settings, 'GOOGLE_OAUTH_CREDENTIALS'):
             messages.error(
                 request,
-                'Las credenciales de Google OAuth2 no están configuradas. '
-                'Contacta al administrador del sistema.'
+                'Las credenciales de Google OAuth2 no están configuradas.'
             )
             return redirect('integrations:settings')
         
-        # Configurar el flujo OAuth2
+        # Construir URI de redirección
+        redirect_uri = request.build_absolute_uri(reverse('integrations:google_callback'))
+        print(f"🔗 Redirect URI: {redirect_uri}")  # Para debugging
+        
+        # Crear flujo OAuth2
         flow = Flow.from_client_config(
             settings.GOOGLE_OAUTH_CREDENTIALS,
             scopes=['https://www.googleapis.com/auth/calendar.events'],
-            redirect_uri=request.build_absolute_uri(reverse('integrations:google_callback'))
+            redirect_uri=redirect_uri
         )
         
         # Generar URL de autorización
@@ -86,10 +91,12 @@ def google_authorize_view(request):
             prompt='consent'
         )
         
-        # Guardar el state en la sesión para verificar en el callback
+        # Guardar state en sesión
         request.session['oauth_state'] = state
         
-        # Redirigir a Google para autorización
+        print(f"✅ URL de autorización generada: {authorization_url}")  # Para debugging
+        
+        # Redirigir a Google
         return redirect(authorization_url)
     
     except ImportError:
@@ -101,6 +108,7 @@ def google_authorize_view(request):
         return redirect('integrations:settings')
     
     except Exception as e:
+        print(f"❌ Error en google_authorize_view: {e}")  # Para debugging
         messages.error(
             request,
             f'Error al iniciar la autorización de Google: {str(e)}'
@@ -128,9 +136,8 @@ def google_callback_view(request):
     """
     try:
         from google_auth_oauthlib.flow import Flow
-        from google.oauth2.credentials import Credentials
         
-        # Verificar si hubo un error (usuario rechazó)
+        # Verificar si hubo error
         if 'error' in request.GET:
             messages.warning(
                 request,
@@ -138,7 +145,7 @@ def google_callback_view(request):
             )
             return redirect('integrations:settings')
         
-        # Verificar que el state coincida
+        # Verificar state
         state = request.session.get('oauth_state')
         if not state or state != request.GET.get('state'):
             messages.error(
@@ -147,21 +154,27 @@ def google_callback_view(request):
             )
             return redirect('integrations:settings')
         
-        # Configurar el flujo OAuth2 de nuevo
+        # Construir URI de redirección
+        redirect_uri = request.build_absolute_uri(reverse('integrations:google_callback'))
+        
+        # Crear flujo OAuth2
         flow = Flow.from_client_config(
             settings.GOOGLE_OAUTH_CREDENTIALS,
             scopes=['https://www.googleapis.com/auth/calendar.events'],
-            redirect_uri=request.build_absolute_uri(reverse('integrations:google_callback')),
+            redirect_uri=redirect_uri,
             state=state
         )
         
-        # Intercambiar el código por tokens
+        # Intercambiar código por tokens
         flow.fetch_token(authorization_response=request.build_absolute_uri())
         
-        # Obtener las credenciales
+        # Obtener credenciales
         credentials = flow.credentials
         
-        # Guardar o actualizar el token en la base de datos
+        print(f"✅ Token obtenido correctamente")  # Para debugging
+        print(f"🔑 Access token: {credentials.token[:20]}...")  # Primeros 20 caracteres
+        
+        # Guardar en base de datos
         google_token, created = GoogleApiToken.objects.update_or_create(
             user=request.user,
             defaults={
@@ -174,13 +187,13 @@ def google_callback_view(request):
             }
         )
         
-        # Limpiar el state de la sesión
+        # Limpiar state de sesión
         del request.session['oauth_state']
         
         if created:
             messages.success(
                 request,
-                '¡Google Calendar conectado exitosamente! Ahora las citas se crearán automáticamente en tu calendario.'
+                '¡Google Calendar conectado exitosamente! Las citas se sincronizarán automáticamente.'
             )
         else:
             messages.success(
@@ -191,6 +204,7 @@ def google_callback_view(request):
         return redirect('integrations:settings')
     
     except Exception as e:
+        print(f"❌ Error en google_callback_view: {e}")  # Para debugging
         messages.error(
             request,
             f'Error al conectar con Google Calendar: {str(e)}'
@@ -211,13 +225,12 @@ def google_disconnect_view(request):
     """
     if request.method == 'POST':
         try:
-            # Buscar y eliminar el token del usuario
             google_token = GoogleApiToken.objects.get(user=request.user)
             google_token.delete()
             
             messages.success(
                 request,
-                'Google Calendar desconectado exitosamente. Las nuevas citas ya no se sincronizarán.'
+                'Google Calendar desconectado exitosamente.'
             )
         except GoogleApiToken.DoesNotExist:
             messages.warning(
@@ -227,7 +240,6 @@ def google_disconnect_view(request):
         
         return redirect('integrations:settings')
     
-    # Si no es POST, redirigir a configuración
     messages.error(
         request,
         'Método no permitido. Usa el botón de desconectar desde la configuración.'
