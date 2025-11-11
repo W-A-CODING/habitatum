@@ -5,14 +5,16 @@
 
 {% block extra_css %}
 <style>
-    /* Hero Section */
+    /* Hero Section - Estilos base */
     .hero {
-        background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-claro) 100%);
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
         color: var(--blanco);
         padding: var(--espacio-xl) var(--espacio-lg);
         text-align: center;
         border-radius: var(--radio-lg);
         margin-bottom: var(--espacio-xl);
+        position: relative;
+        overflow: hidden;
     }
     
     .hero h1 {
@@ -34,7 +36,14 @@
         flex-wrap: wrap;
     }
     
-    /* Carousel de propiedades */
+    .hero-buttons .btn {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* ========================================
+       PROPERTY CARDS - MOTION STYLES
+    ======================================== */
+    
     .propiedades-destacadas {
         margin-bottom: var(--espacio-xl);
     }
@@ -58,23 +67,28 @@
         border-radius: var(--radio-lg);
         overflow: hidden;
         box-shadow: var(--sombra-md);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         text-decoration: none;
         color: var(--negro);
         display: flex;
         flex-direction: column;
+        position: relative;
     }
     
-    .property-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--sombra-lg);
+    /* Contenedor de imagen con overflow hidden */
+    .property-card > img,
+    .property-card > div:first-child {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
     }
     
     .property-card-image {
         width: 100%;
-        height: 200px;
+        height: 100%;
         object-fit: cover;
         background-color: var(--beige);
+        display: block;
     }
     
     .property-card-content {
@@ -82,6 +96,9 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        position: relative;
+        z-index: 1;
+        background-color: var(--blanco);
     }
     
     .property-card-title {
@@ -115,7 +132,22 @@
         margin-top: auto;
     }
     
-    /* Sección de características */
+    .no-propiedades {
+        text-align: center;
+        padding: var(--espacio-xl);
+        background-color: var(--beige);
+        border-radius: var(--radio-lg);
+    }
+    
+    .no-propiedades p {
+        color: var(--gris-medio);
+        font-size: 1.125rem;
+    }
+    
+    /* ========================================
+       CARACTERÍSTICAS SECTION - MOTION STYLES
+    ======================================== */
+    
     .caracteristicas {
         background-color: var(--beige);
         padding: var(--espacio-xl) var(--espacio-lg);
@@ -142,16 +174,19 @@
         background-color: var(--blanco);
         border-radius: var(--radio-md);
         box-shadow: var(--sombra-sm);
+        position: relative;
     }
     
     .caracteristica-icon {
         font-size: 3rem;
         margin-bottom: var(--espacio-md);
+        display: inline-block;
     }
     
     .caracteristica-item h3 {
         color: var(--azul-oscuro);
         margin-bottom: var(--espacio-sm);
+        font-size: 1.25rem;
     }
     
     .caracteristica-item p {
@@ -159,37 +194,56 @@
         line-height: 1.6;
     }
     
-    /* CTA Section */
+    /* ========================================
+       CTA SECTION - MOTION STYLES
+    ======================================== */
+    
     .cta-section {
         background-color: var(--azul-claro);
         color: var(--blanco);
         padding: var(--espacio-xl) var(--espacio-lg);
         border-radius: var(--radio-lg);
         text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Efecto de fondo animado (opcional) */
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.3; }
     }
     
     .cta-section h2 {
         font-size: 2rem;
         margin-bottom: var(--espacio-md);
+        position: relative;
+        z-index: 1;
     }
     
     .cta-section p {
         font-size: 1.125rem;
         margin-bottom: var(--espacio-lg);
         color: var(--beige);
+        position: relative;
+        z-index: 1;
     }
     
-    /* Mensaje cuando no hay propiedades */
-    .no-propiedades {
-        text-align: center;
-        padding: var(--espacio-xl);
-        background-color: var(--beige);
-        border-radius: var(--radio-lg);
-    }
-    
-    .no-propiedades p {
-        color: var(--gris-medio);
-        font-size: 1.125rem;
+    .cta-section .btn {
+        position: relative;
+        z-index: 1;
     }
     
     /* Responsive */
@@ -205,6 +259,10 @@
         .carousel {
             grid-template-columns: 1fr;
         }
+        
+        .caracteristicas-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
@@ -212,12 +270,12 @@
 {% block content %}
 <div class="container">
     <!-- Hero Section -->
-    <section class="hero">
-        <h1>Encuentra tu hogar ideal</h1>
-        <p>Propiedades de calidad con asesoría crediticia personalizada</p>
+    <section class="hero" id="heroSection">
+        <h1 class="hero-title">Encuentra tu hogar ideal</h1>
+        <p class="hero-text">Propiedades de calidad con asesoría crediticia personalizada</p>
         <div class="hero-buttons">
-            <a href="{% url 'properties:property_list' %}" class="btn btn-primary">Ver Propiedades</a>
-            <a href="{% url 'core:services' %}" class="btn btn-secondary">Nuestros Servicios</a>
+            <a href="{% url 'properties:property_list' %}" class="btn btn-primary hero-btn">Ver Propiedades</a>
+            <a href="{% url 'core:services' %}" class="btn btn-secondary hero-btn">Nuestros Servicios</a>
         </div>
     </section>
     
@@ -302,13 +360,627 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Motion Dev CDN -->
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+
 <script>
-    // Script para formatear números con comas (si es necesario)
+    // Destructurar Motion
+    const { animate, stagger, inView, scroll, spring } = Motion;
+    
     document.addEventListener('DOMContentLoaded', function() {
-        const precios = document.querySelectorAll('.property-card-price');
-        precios.forEach(function(precio) {
-            // Aquí podrías agregar lógica adicional si es necesario
+        
+        // ========================================
+        // HERO SECTION ANIMATION
+        // ========================================
+        
+        // Animar título del hero
+        animate(
+            ".hero-title",
+            { 
+                opacity: [0, 1],
+                y: [30, 0]
+            },
+            { 
+                duration: 0.8,
+                easing: "ease-out"
+            }
+        );
+        
+        // Animar texto del hero
+        animate(
+            ".hero-text",
+            { 
+                opacity: [0, 1],
+                y: [30, 0]
+            },
+            { 
+                duration: 0.8,
+                delay: 0.2,
+                easing: "ease-out"
+            }
+        );
+        
+        // Animar botones del hero con stagger
+        animate(
+            ".hero-btn",
+            { 
+                opacity: [0, 1],
+                y: [30, 0],
+                scale: [0.9, 1]
+            },
+            { 
+                duration: 0.6,
+                delay: stagger(0.1, { start: 0.4 }),
+                easing: "ease-out"
+            }
+        );
+        
+        // Hover effect para botones del hero
+        const heroBtns = document.querySelectorAll('.hero-btn');
+        heroBtns.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                animate(
+                    this,
+                    { 
+                        y: -3,
+                        scale: 1.05
+                    },
+                    { 
+                        duration: 0.3,
+                        easing: [0.4, 0, 0.2, 1]
+                    }
+                );
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                animate(
+                    this,
+                    { 
+                        y: 0,
+                        scale: 1
+                    },
+                    { 
+                        duration: 0.3,
+                        easing: [0.4, 0, 0.2, 1]
+                    }
+                );
+            });
         });
+        
+        // ========================================
+        // PROPERTY CARDS ANIMATION
+        // ========================================
+        
+        // Animar título de la sección cuando sea visible
+        inView(
+            ".propiedades-destacadas h2",
+            ({ target }) => {
+                animate(
+                    target,
+                    { 
+                        opacity: [0, 1],
+                        y: [20, 0]
+                    },
+                    { 
+                        duration: 0.6,
+                        easing: "ease-out"
+                    }
+                );
+                
+                return () => {}; // cleanup
+            }
+        );
+        
+        // Animar property cards con stagger cuando sean visibles
+        inView(
+            ".property-card",
+            ({ target }) => {
+                const allCards = document.querySelectorAll('.property-card');
+                
+                animate(
+                    allCards,
+                    { 
+                        opacity: [0, 1],
+                        y: [40, 0],
+                        scale: [0.95, 1]
+                    },
+                    { 
+                        duration: 0.6,
+                        delay: stagger(0.1),
+                        easing: [0.4, 0, 0.2, 1]
+                    }
+                );
+                
+                return () => {}; // cleanup
+            },
+            { amount: 0.2 } // Se activa cuando 20% es visible
+        );
+        
+        // Hover effects para property cards
+        const propertyCards = document.querySelectorAll('.property-card');
+        
+        propertyCards.forEach(card => {
+            const image = card.querySelector('.property-card-image');
+            const title = card.querySelector('.property-card-title');
+            const price = card.querySelector('.property-card-price');
+            
+            card.addEventListener('mouseenter', function() {
+                // Animar card
+                animate(
+                    card,
+                    { 
+                        y: -8,
+                        scale: 1.02,
+                        boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)"
+                    },
+                    { 
+                        duration: 0.4,
+                        easing: [0.4, 0, 0.2, 1]
+                    }
+                );
+                
+                // Zoom en imagen (sin parallax, solo zoom)
+                if (image) {
+                    animate(
+                        image,
+                        { scale: 1.1 },
+                        { duration: 0.5, easing: [0.4, 0, 0.2, 1] }
+                    );
+                }
+                
+                // Color del título
+                if (title) {
+                    animate(
+                        title,
+                        { color: "#3A89C9" },
+                        { duration: 0.3 }
+                    );
+                }
+                
+                // Scale del precio
+                if (price) {
+                    animate(
+                        price,
+                        { scale: 1.05 },
+                        { duration: 0.3 }
+                    );
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                // Resetear card
+                animate(
+                    card,
+                    { 
+                        y: 0,
+                        scale: 1,
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)"
+                    },
+                    { 
+                        duration: 0.4,
+                        easing: [0.4, 0, 0.2, 1]
+                    }
+                );
+                
+                // Resetear imagen
+                if (image) {
+                    animate(
+                        image,
+                        { scale: 1 },
+                        { duration: 0.5, easing: [0.4, 0, 0.2, 1] }
+                    );
+                }
+                
+                // Resetear título
+                if (title) {
+                    animate(
+                        title,
+                        { color: "#1B325F" },
+                        { duration: 0.3 }
+                    );
+                }
+                
+                // Resetear precio
+                if (price) {
+                    animate(
+                        price,
+                        { scale: 1 },
+                        { duration: 0.3 }
+                    );
+                }
+            });
+        });
+        
+        // Animar botón "Ver Todas"
+        const verTodasContainer = document.querySelector('.propiedades-destacadas > div[style*="text-align: center"]');
+        if (verTodasContainer) {
+            inView(
+                verTodasContainer,
+                ({ target }) => {
+                    animate(
+                        target,
+                        { 
+                            opacity: [0, 1],
+                            y: [20, 0]
+                        },
+                        { 
+                            duration: 0.6,
+                            easing: "ease-out"
+                        }
+                    );
+                    
+                    return () => {};
+                }
+            );
+        }
+        
+        // Animar mensaje "no propiedades"
+        const noPropiedades = document.querySelector('.no-propiedades');
+        if (noPropiedades) {
+            inView(
+                noPropiedades,
+                ({ target }) => {
+                    animate(
+                        target,
+                        { 
+                            opacity: [0, 1],
+                            y: [20, 0],
+                            scale: [0.95, 1]
+                        },
+                        { 
+                            duration: 0.8,
+                            easing: "ease-out"
+                        }
+                    );
+                    
+                    return () => {};
+                }
+            );
+        }
+        
+        // ========================================
+        // CARACTERÍSTICAS SECTION ANIMATION
+        // ========================================
+        
+        // Animar título de características
+        inView(
+            ".caracteristicas h2",
+            ({ target }) => {
+                animate(
+                    target,
+                    { 
+                        opacity: [0, 1],
+                        y: [30, 0]
+                    },
+                    { 
+                        duration: 0.8,
+                        easing: [0.25, 0.1, 0.25, 1] // Easing muy suave
+                    }
+                );
+                
+                return () => {};
+            },
+            { amount: 0.3 }
+        );
+        
+        // Animar items de características con stagger suave
+        inView(
+            ".caracteristica-item",
+            ({ target }) => {
+                const allItems = document.querySelectorAll('.caracteristica-item');
+                
+                animate(
+                    allItems,
+                    { 
+                        opacity: [0, 1],
+                        y: [50, 0],
+                        scale: [0.9, 1]
+                    },
+                    { 
+                        duration: 0.9, // Más lento = más suave
+                        delay: stagger(0.15), // Más delay entre items
+                        easing: [0.25, 0.46, 0.45, 0.94] // easeOutQuad suave
+                    }
+                );
+                
+                return () => {};
+            },
+            { amount: 0.2 }
+        );
+        
+        // Hover effects MUY SUAVES para características
+        const caracteristicaItems = document.querySelectorAll('.caracteristica-item');
+        
+        caracteristicaItems.forEach(item => {
+            const icon = item.querySelector('.caracteristica-icon');
+            const title = item.querySelector('h3');
+            
+            item.addEventListener('mouseenter', function() {
+                // Elevación suave del card
+                animate(
+                    this,
+                    { 
+                        y: -10,
+                        scale: 1.03,
+                        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.12)"
+                    },
+                    { 
+                        duration: 0.6, // Duración más larga
+                        easing: [0.34, 1.56, 0.64, 1] // easeOutBack suave
+                    }
+                );
+                
+                // Bounce suave en el ícono
+                if (icon) {
+                    animate(
+                        icon,
+                        { 
+                            scale: [1, 1.2, 1.15],
+                            rotate: [0, -5, 0]
+                        },
+                        { 
+                            duration: 0.7,
+                            easing: [0.68, -0.55, 0.265, 1.55] // easeInOutBack
+                        }
+                    );
+                }
+                
+                // Color change suave en título
+                if (title) {
+                    animate(
+                        title,
+                        { color: "#3A89C9" },
+                        { duration: 0.5, easing: "ease-in-out" }
+                    );
+                }
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                // Reset muy suave
+                animate(
+                    this,
+                    { 
+                        y: 0,
+                        scale: 1,
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
+                    },
+                    { 
+                        duration: 0.6,
+                        easing: [0.25, 0.1, 0.25, 1]
+                    }
+                );
+                
+                // Reset del ícono
+                if (icon) {
+                    animate(
+                        icon,
+                        { 
+                            scale: 1,
+                            rotate: 0
+                        },
+                        { 
+                            duration: 0.6,
+                            easing: [0.25, 0.1, 0.25, 1]
+                        }
+                    );
+                }
+                
+                // Reset del título
+                if (title) {
+                    animate(
+                        title,
+                        { color: "#1B325F" },
+                        { duration: 0.5, easing: "ease-in-out" }
+                    );
+                }
+            });
+        });
+        
+        // Scroll parallax MUY SUTIL en características
+        if (window.innerWidth > 768) {
+            caracteristicaItems.forEach((item, index) => {
+                // Movimiento alternado para crear efecto de profundidad
+                const direction = index % 2 === 0 ? 1 : -1;
+                
+                scroll(
+                    animate(
+                        item,
+                        { 
+                            y: [0, direction * 20] // Movimiento muy sutil
+                        }
+                    ),
+                    {
+                        target: item,
+                        offset: ["start end", "end start"]
+                    }
+                );
+            });
+        }
+        
+        // Animación de "float" continua para íconos
+        const caracteristicaIcons = document.querySelectorAll('.caracteristica-icon');
+        
+        caracteristicaIcons.forEach((icon, index) => {
+            // Delay diferente para cada ícono
+            setTimeout(() => {
+                // Animación infinita de flotación
+                const floatAnimation = () => {
+                    animate(
+                        icon,
+                        { 
+                            y: [-3, 3, -3]
+                        },
+                        { 
+                            duration: 3, // 3 segundos por ciclo
+                            easing: "ease-in-out",
+                            repeat: Infinity
+                        }
+                    );
+                };
+                
+                // Activar cuando sea visible
+                inView(
+                    icon,
+                    () => {
+                        floatAnimation();
+                        return () => {}; // No detener la animación
+                    },
+                    { amount: 0.5 }
+                );
+            }, index * 200); // Delay escalonado
+        });
+        
+        // ========================================
+        // CTA SECTION ANIMATION (MUY SUAVE)
+        // ========================================
+        
+        inView(
+            ".cta-section",
+            ({ target }) => {
+                const title = target.querySelector('h2');
+                const text = target.querySelector('p');
+                const btn = target.querySelector('.btn');
+                
+                // Animar todo el contenedor con fade suave
+                animate(
+                    target,
+                    { 
+                        opacity: [0, 1],
+                        scale: [0.95, 1]
+                    },
+                    { 
+                        duration: 1, // Muy lento y suave
+                        easing: [0.25, 0.46, 0.45, 0.94]
+                    }
+                );
+                
+                // Animar título
+                if (title) {
+                    animate(
+                        title,
+                        { 
+                            opacity: [0, 1],
+                            y: [40, 0]
+                        },
+                        { 
+                            duration: 1,
+                            delay: 0.2,
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                }
+                
+                // Animar texto
+                if (text) {
+                    animate(
+                        text,
+                        { 
+                            opacity: [0, 1],
+                            y: [40, 0]
+                        },
+                        { 
+                            duration: 1,
+                            delay: 0.4,
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                }
+                
+                // Animar botón con bounce suave
+                if (btn) {
+                    animate(
+                        btn,
+                        { 
+                            opacity: [0, 1],
+                            y: [40, 0],
+                            scale: [0.8, 1.05, 1]
+                        },
+                        { 
+                            duration: 1.2,
+                            delay: 0.6,
+                            easing: [0.68, -0.55, 0.265, 1.55]
+                        }
+                    );
+                }
+                
+                return () => {};
+            },
+            { amount: 0.3 }
+        );
+        
+        // Hover effect MUY SUAVE para botón CTA
+        const ctaBtn = document.querySelector('.cta-section .btn');
+        
+        if (ctaBtn) {
+            ctaBtn.addEventListener('mouseenter', function() {
+                animate(
+                    this,
+                    { 
+                        scale: 1.1,
+                        y: -5,
+                        boxShadow: "0 16px 40px rgba(0, 0, 0, 0.25)"
+                    },
+                    { 
+                        duration: 0.5,
+                        easing: [0.34, 1.56, 0.64, 1] // Bounce suave
+                    }
+                );
+            });
+            
+            ctaBtn.addEventListener('mouseleave', function() {
+                animate(
+                    this,
+                    { 
+                        scale: 1,
+                        y: 0,
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)"
+                    },
+                    { 
+                        duration: 0.5,
+                        easing: [0.25, 0.1, 0.25, 1]
+                    }
+                );
+            });
+            
+            // Efecto de "pulso" sutil continuo
+            animate(
+                ctaBtn,
+                { 
+                    scale: [1, 1.02, 1]
+                },
+                { 
+                    duration: 2,
+                    easing: "ease-in-out",
+                    repeat: Infinity
+                }
+            );
+        }
+        
+        // ========================================
+        // SMOOTH SCROLL PARA ENLACES
+        // ========================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && href !== '') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const targetPosition = target.offsetTop - 80; // Offset para navbar
+                        
+                        animate(
+                            window,
+                            { scrollTop: targetPosition },
+                            { 
+                                duration: 1.2, // Scroll muy suave
+                                easing: [0.25, 0.46, 0.45, 0.94]
+                            }
+                        );
+                    }
+                }
+            });
+        });
+        
     });
 </script>
 {% endblock %}

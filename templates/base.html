@@ -57,7 +57,10 @@
             background-color: var(--blanco);
         }
         
-        /* Navbar */
+        /* ========================================
+           NAVBAR - MOTION STYLES
+        ======================================== */
+        
         .navbar {
             background-color: var(--azul-oscuro);
             padding: var(--espacio-md) var(--espacio-lg);
@@ -65,6 +68,8 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            /* Estado inicial para animación de carga */
+            transform: translateY(-100%);
         }
         
         .navbar-container {
@@ -83,6 +88,12 @@
             display: flex;
             align-items: center;
             gap: var(--espacio-sm);
+            position: relative;
+        }
+        
+        .navbar-logo span:first-child {
+            display: inline-block;
+            font-size: 1.75rem;
         }
         
         .navbar-menu {
@@ -91,15 +102,46 @@
             gap: var(--espacio-lg);
         }
         
+        .navbar-menu li {
+            position: relative;
+        }
+        
         .navbar-menu a {
             color: var(--blanco);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
+            position: relative;
+            display: inline-block;
+            padding: 0.5rem 0;
+        }
+        
+        /* Underline animado */
+        .navbar-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--naranja);
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .navbar-menu a:hover::after,
+        .navbar-menu a.active::after {
+            width: 100%;
         }
         
         .navbar-menu a:hover {
             color: var(--naranja);
+        }
+        
+        /* Scroll behavior */
+        .navbar.scrolled {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            background-color: rgba(27, 50, 95, 0.95);
         }
         
         /* Container principal */
@@ -109,12 +151,35 @@
             padding: var(--espacio-lg);
         }
         
-        /* Footer */
+        /* ========================================
+           FOOTER - MOTION STYLES
+        ======================================== */
+        
         .footer {
             background-color: var(--azul-oscuro);
             color: var(--blanco);
             padding: var(--espacio-xl) var(--espacio-lg) var(--espacio-lg);
             margin-top: var(--espacio-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Efecto de ondas en el fondo */
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(58, 137, 201, 0.1) 0%, transparent 70%);
+            animation: wave 15s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-25%) translateY(10px); }
         }
         
         .footer-container {
@@ -123,11 +188,36 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: var(--espacio-lg);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-section {
+            position: relative;
         }
         
         .footer-section h3 {
             color: var(--naranja);
             margin-bottom: var(--espacio-md);
+            font-size: 1.25rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* Underline animado para títulos */
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--naranja);
+            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .footer-section:hover h3::after {
+            width: 100%;
         }
         
         .footer-section p,
@@ -136,10 +226,28 @@
             text-decoration: none;
             display: block;
             margin-bottom: var(--espacio-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 0;
         }
         
         .footer-section a:hover {
             color: var(--blanco);
+            padding-left: 8px;
+        }
+        
+        /* Iconos en links */
+        .footer-section a::before {
+            content: '→';
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .footer-section a:hover::before {
+            left: -10px;
+            opacity: 1;
         }
         
         .footer-bottom {
@@ -148,6 +256,8 @@
             padding-top: var(--espacio-md);
             border-top: 1px solid var(--azul-claro);
             color: var(--azul-medio);
+            position: relative;
+            z-index: 1;
         }
         
         /* Botones */
@@ -244,8 +354,6 @@
                 grid-template-columns: 1fr;
             }
         }
-        
-
     </style>
     {% block extra_css %}{% endblock %}
     
@@ -253,17 +361,17 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
+    <nav class="navbar" id="mainNavbar">
         <div class="navbar-container">
-            <a href="{% url 'core:home' %}" class="navbar-logo">
-                <span>🏠</span>
-                <span>Habitatum</span>
+            <a href="{% url 'core:home' %}" class="navbar-logo" id="navbarLogo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">Habitatum</span>
             </a>
-            <ul class="navbar-menu">
-                <li><a href="{% url 'core:home' %}">Inicio</a></li>
-                <li><a href="{% url 'properties:property_list' %}">Propiedades</a></li>
-                <li><a href="{% url 'core:services' %}">Servicios</a></li>
-                <li><a href="{% url 'dashboard:login' %}">Panel Admin</a></li>
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="{% url 'core:home' %}" class="navbar-link">Inicio</a></li>
+                <li><a href="{% url 'properties:property_list' %}" class="navbar-link">Propiedades</a></li>
+                <li><a href="{% url 'core:services' %}" class="navbar-link">Servicios</a></li>
+                <li><a href="{% url 'dashboard:login' %}" class="navbar-link">Panel Admin</a></li>
             </ul>
         </div>
     </nav>
@@ -287,29 +395,29 @@
     </main>
     
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" id="mainFooter">
         <div class="footer-container">
-            <div class="footer-section">
+            <div class="footer-section footer-about">
                 <h3>Habitatum</h3>
                 <p>Tu hogar ideal te está esperando.</p>
                 <p>Facilitamos la compra de propiedades con asesoría crediticia personalizada.</p>
             </div>
             
-            <div class="footer-section">
+            <div class="footer-section footer-links">
                 <h3>Enlaces Rápidos</h3>
                 <a href="{% url 'core:home' %}">Inicio</a>
                 <a href="{% url 'properties:property_list' %}">Ver Propiedades</a>
                 <a href="{% url 'core:services' %}">Nuestros Servicios</a>
             </div>
             
-            <div class="footer-section">
+            <div class="footer-section footer-contact">
                 <h3>Contacto</h3>
                 <p>📧 info@habitatum.com</p>
                 <p>📱 222 123 4567</p>
                 <p>📍 Puebla, México</p>
             </div>
             
-            <div class="footer-section">
+            <div class="footer-section footer-hours">
                 <h3>Horario</h3>
                 <p>Lunes a Viernes</p>
                 <p>9:00 AM - 6:00 PM</p>
@@ -322,6 +430,363 @@
             <p>&copy; 2025 Habitatum. Todos los derechos reservados.</p>
         </div>
     </footer>
+    
+    <!-- Motion Dev CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+    
+    <script>
+        const { animate, stagger, inView, scroll } = Motion;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // ========================================
+            // NAVBAR ANIMATION
+            // ========================================
+            
+            const navbar = document.getElementById('mainNavbar');
+            const navbarLogo = document.getElementById('navbarLogo');
+            const navbarMenu = document.getElementById('navbarMenu');
+            const navbarLinks = document.querySelectorAll('.navbar-link');
+            
+            // Animación inicial del navbar (slide down)
+            animate(
+                navbar,
+                { 
+                    y: ['-100%', '0%']
+                },
+                { 
+                    duration: 0.8,
+                    easing: [0.34, 1.56, 0.64, 1] // easeOutBack
+                }
+            );
+            
+            // Animar logo con bounce suave
+            animate(
+                navbarLogo,
+                { 
+                    opacity: [0, 1],
+                    scale: [0.5, 1.1, 1]
+                },
+                { 
+                    duration: 0.9,
+                    delay: 0.3,
+                    easing: [0.68, -0.55, 0.265, 1.55]
+                }
+            );
+            
+            // Animar ícono del logo (rotación suave)
+            const logoIcon = navbarLogo.querySelector('.logo-icon');
+            if (logoIcon) {
+                animate(
+                    logoIcon,
+                    { 
+                        rotate: [0, 360]
+                    },
+                    { 
+                        duration: 1,
+                        delay: 0.3,
+                        easing: [0.25, 0.46, 0.45, 0.94]
+                    }
+                );
+            }
+            
+            // Animar links del menu con stagger
+            animate(
+                navbarLinks,
+                { 
+                    opacity: [0, 1],
+                    y: [-20, 0]
+                },
+                { 
+                    duration: 0.6,
+                    delay: stagger(0.1, { start: 0.5 }),
+                    easing: [0.25, 0.46, 0.45, 0.94]
+                }
+            );
+            
+            // Hover effect para logo
+            navbarLogo.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.logo-icon');
+                
+                if (icon) {
+                    animate(
+                        icon,
+                        { 
+                            rotate: [0, 15, -15, 0],
+                            scale: [1, 1.2, 1]
+                        },
+                        { 
+                            duration: 0.6,
+                            easing: [0.68, -0.55, 0.265, 1.55]
+                        }
+                    );
+                }
+            });
+            
+            // Hover effect para links (bounce sutil)
+            navbarLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    animate(
+                        this,
+                        { 
+                            y: -3,
+                            scale: 1.05
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    animate(
+                        this,
+                        { 
+                            y: 0,
+                            scale: 1
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.25, 0.1, 0.25, 1]
+                        }
+                    );
+                });
+            });
+            
+            // Efecto de scroll en navbar (cambio de estilo)
+            let lastScroll = 0;
+            
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                
+                // Agregar clase cuando hace scroll
+                if (currentScroll > 100) {
+                    if (!navbar.classList.contains('scrolled')) {
+                        navbar.classList.add('scrolled');
+                        
+                        animate(
+                            navbar,
+                            { 
+                                padding: ['1rem 2rem', '0.75rem 2rem'],
+                                boxShadow: [
+                                    '0 4px 8px rgba(0, 0, 0, 0.15)',
+                                    '0 4px 12px rgba(0, 0, 0, 0.25)'
+                                ]
+                            },
+                            { 
+                                duration: 0.4,
+                                easing: [0.25, 0.46, 0.45, 0.94]
+                            }
+                        );
+                    }
+                } else {
+                    if (navbar.classList.contains('scrolled')) {
+                        navbar.classList.remove('scrolled');
+                        
+                        animate(
+                            navbar,
+                            { 
+                                padding: ['0.75rem 2rem', '1rem 2rem'],
+                                boxShadow: [
+                                    '0 4px 12px rgba(0, 0, 0, 0.25)',
+                                    '0 4px 8px rgba(0, 0, 0, 0.15)'
+                                ]
+                            },
+                            { 
+                                duration: 0.4,
+                                easing: [0.25, 0.46, 0.45, 0.94]
+                            }
+                        );
+                    }
+                }
+                
+                // Hide/show navbar in scroll down/up
+                if (currentScroll > lastScroll && currentScroll > 500) {
+                    // Scrolling down - ocultar navbar
+                    animate(
+                        navbar,
+                        { 
+                            y: '-100%'
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.25, 0.46, 0.45, 0.94]
+                        }
+                    );
+                } else {
+                    // Scrolling up - mostrar navbar
+                    animate(
+                        navbar,
+                        { 
+                            y: '0%'
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                }
+                
+                lastScroll = currentScroll;
+            }, { passive: true });
+            
+            // ========================================
+            // FOOTER ANIMATION
+            // ========================================
+            
+            const footer = document.getElementById('mainFooter');
+            const footerSections = document.querySelectorAll('.footer-section');
+            const footerBottom = document.querySelector('.footer-bottom');
+            
+            // Animar footer cuando sea visible
+            inView(
+                footer,
+                ({ target }) => {
+                    // Fade in del footer completo
+                    animate(
+                        target,
+                        { 
+                            opacity: [0, 1]
+                        },
+                        { 
+                            duration: 0.8,
+                            easing: [0.25, 0.46, 0.45, 0.94]
+                        }
+                    );
+                    
+                    // Animar secciones con stagger
+                    animate(
+                        footerSections,
+                        { 
+                            opacity: [0, 1],
+                            y: [50, 0]
+                        },
+                        { 
+                            duration: 0.9,
+                            delay: stagger(0.15, { start: 0.3 }),
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                    
+                    // Animar títulos con slide from left
+                    const footerTitles = target.querySelectorAll('.footer-section h3');
+                    animate(
+                        footerTitles,
+                        { 
+                            opacity: [0, 1],
+                            x: [-30, 0]
+                        },
+                        { 
+                            duration: 0.8,
+                            delay: stagger(0.1, { start: 0.5 }),
+                            easing: [0.25, 0.46, 0.45, 0.94]
+                        }
+                    );
+                    
+                    // Animar footer bottom
+                    if (footerBottom) {
+                        animate(
+                            footerBottom,
+                            { 
+                                opacity: [0, 1],
+                                y: [30, 0]
+                            },
+                            { 
+                                duration: 0.8,
+                                delay: 1.2,
+                                easing: [0.25, 0.46, 0.45, 0.94]
+                            }
+                        );
+                    }
+                    
+                    return () => {};
+                },
+                { amount: 0.2 }
+            );
+            
+            // Hover effects suaves para secciones del footer
+            footerSections.forEach(section => {
+                const title = section.querySelector('h3');
+                const links = section.querySelectorAll('a');
+                
+                section.addEventListener('mouseenter', function() {
+                    // Elevar sección suavemente
+                    animate(
+                        this,
+                        { 
+                            y: -5
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.34, 1.56, 0.64, 1]
+                        }
+                    );
+                });
+                
+                section.addEventListener('mouseleave', function() {
+                    animate(
+                        this,
+                        { 
+                            y: 0
+                        },
+                        { 
+                            duration: 0.4,
+                            easing: [0.25, 0.1, 0.25, 1]
+                        }
+                    );
+                });
+                
+                // Hover individual en links
+                links.forEach(link => {
+                    link.addEventListener('mouseenter', function() {
+                        animate(
+                            this,
+                            { 
+                                x: 5,
+                                scale: 1.05
+                            },
+                            { 
+                                duration: 0.3,
+                                easing: [0.34, 1.56, 0.64, 1]
+                            }
+                        );
+                    });
+                    
+                    link.addEventListener('mouseleave', function() {
+                        animate(
+                            this,
+                            { 
+                                x: 0,
+                                scale: 1
+                            },
+                            { 
+                                duration: 0.3,
+                                easing: [0.25, 0.1, 0.25, 1]
+                            }
+                        );
+                    });
+                });
+            });
+            
+            // Parallax sutil en footer (solo desktop)
+            if (window.innerWidth > 768) {
+                scroll(
+                    animate(
+                        footerSections,
+                        { 
+                            y: [20, -20]
+                        }
+                    ),
+                    {
+                        target: footer,
+                        offset: ["start end", "end start"]
+                    }
+                );
+            }
+            
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
