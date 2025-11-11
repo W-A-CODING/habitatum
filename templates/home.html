@@ -7,135 +7,139 @@
 <style>
     /* Hero Section */
     .hero {
-        background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-claro) 100%);
+        background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-oscuro) 100%);
         color: var(--blanco);
         padding: var(--espacio-xl) var(--espacio-lg);
         text-align: center;
         border-radius: var(--radio-lg);
         margin-bottom: var(--espacio-xl);
     }
-    
+
     .hero h1 {
         font-size: 3rem;
         margin-bottom: var(--espacio-md);
         font-weight: 700;
     }
-    
+
     .hero p {
         font-size: 1.25rem;
         margin-bottom: var(--espacio-lg);
         color: var(--azul-medio);
     }
-    
+
     .hero-buttons {
         display: flex;
         gap: var(--espacio-md);
         justify-content: center;
         flex-wrap: wrap;
     }
-    
-    /* Carousel de propiedades */
+
+    /* ========================================
+       CAROUSEL ANIMADO CON MOTION.JS
+    ======================================== */
+
     .propiedades-destacadas {
         margin-bottom: var(--espacio-xl);
     }
-    
+
     .propiedades-destacadas h2 {
         text-align: center;
         color: var(--azul-oscuro);
         font-size: 2rem;
         margin-bottom: var(--espacio-lg);
     }
-    
-    .carousel {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: var(--espacio-lg);
-        margin-bottom: var(--espacio-lg);
-    }
-    
-    .property-card {
-        background-color: var(--blanco);
-        border-radius: var(--radio-lg);
+
+    /* Estilos para el Carousel */
+    .carousel-card {
+        position: absolute;
+        background-position: center;
+        background-size: cover;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: var(--sombra-md);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-decoration: none;
-        color: var(--negro);
-        display: flex;
-        flex-direction: column;
+        cursor: pointer;
     }
-    
-    .property-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--sombra-lg);
-    }
-    
-    .property-card-image {
+
+    .carousel-card-content {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        color: var(--blanco);
+        padding: 1rem;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
         width: 100%;
-        height: 200px;
-        object-fit: cover;
-        background-color: var(--beige);
     }
-    
-    .property-card-content {
-        padding: var(--espacio-md);
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+
+    .carousel-card-place {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+        opacity: 0.9;
     }
-    
-    .property-card-title {
-        font-size: 1.25rem;
+
+    .carousel-card-title {
+        font-size: 1.125rem;
         font-weight: 600;
-        color: var(--azul-oscuro);
-        margin-bottom: var(--espacio-sm);
+        margin-bottom: 0.25rem;
     }
-    
-    .property-card-location {
-        color: var(--gris-medio);
-        font-size: 0.875rem;
-        margin-bottom: var(--espacio-sm);
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    
-    .property-card-details {
-        display: flex;
-        gap: var(--espacio-md);
-        margin-bottom: var(--espacio-md);
-        font-size: 0.875rem;
-        color: var(--gris-medio);
-    }
-    
-    .property-card-price {
-        font-size: 1.5rem;
+
+    .carousel-card-price {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--naranja);
-        margin-top: auto;
     }
-    
-    /* Sección de características */
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .carousel-container {
+            height: 400px !important;
+        }
+        #details-even, #details-odd {
+            top: 180px !important;
+            left: 20px !important;
+            max-width: calc(100% - 40px) !important;
+        }
+        #details-even .title, #details-odd .title {
+            font-size: 2.5rem !important;
+        }
+    }
+
+    /* Mensaje cuando no hay propiedades */
+    .no-propiedades {
+        text-align: center;
+        padding: var(--espacio-xl);
+        background-color: var(--beige);
+        border-radius: var(--radio-lg);
+    }
+
+    .no-propiedades p {
+        color: var(--gris-medio);
+        font-size: 1.125rem;
+    }
+
+    /* ========================================
+       CARACTERÍSTICAS SECTION
+    ======================================== */
+
     .caracteristicas {
         background-color: var(--beige);
         padding: var(--espacio-xl) var(--espacio-lg);
         border-radius: var(--radio-lg);
         margin-bottom: var(--espacio-xl);
     }
-    
+
     .caracteristicas h2 {
         text-align: center;
         color: var(--azul-oscuro);
         font-size: 2rem;
         margin-bottom: var(--espacio-lg);
     }
-    
+
     .caracteristicas-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: var(--espacio-lg);
     }
-    
+
     .caracteristica-item {
         text-align: center;
         padding: var(--espacio-lg);
@@ -143,22 +147,22 @@
         border-radius: var(--radio-md);
         box-shadow: var(--sombra-sm);
     }
-    
+
     .caracteristica-icon {
         font-size: 3rem;
         margin-bottom: var(--espacio-md);
     }
-    
+
     .caracteristica-item h3 {
         color: var(--azul-oscuro);
         margin-bottom: var(--espacio-sm);
     }
-    
+
     .caracteristica-item p {
         color: var(--gris-medio);
         line-height: 1.6;
     }
-    
+
     /* CTA Section */
     .cta-section {
         background-color: var(--azul-claro);
@@ -167,42 +171,29 @@
         border-radius: var(--radio-lg);
         text-align: center;
     }
-    
+
     .cta-section h2 {
         font-size: 2rem;
         margin-bottom: var(--espacio-md);
     }
-    
+
     .cta-section p {
         font-size: 1.125rem;
         margin-bottom: var(--espacio-lg);
         color: var(--beige);
     }
-    
-    /* Mensaje cuando no hay propiedades */
-    .no-propiedades {
-        text-align: center;
-        padding: var(--espacio-xl);
-        background-color: var(--beige);
-        border-radius: var(--radio-lg);
-    }
-    
-    .no-propiedades p {
-        color: var(--gris-medio);
-        font-size: 1.125rem;
-    }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
         .hero h1 {
             font-size: 2rem;
         }
-        
+
         .hero p {
             font-size: 1rem;
         }
-        
-        .carousel {
+
+        .caracteristicas-grid {
             grid-template-columns: 1fr;
         }
     }
@@ -220,39 +211,71 @@
             <a href="{% url 'core:services' %}" class="btn btn-secondary">Nuestros Servicios</a>
         </div>
     </section>
-    
-    <!-- Propiedades Destacadas -->
+
+    <!-- Propiedades Destacadas con Carousel Animado -->
     <section class="propiedades-destacadas">
         <h2>Propiedades Destacadas</h2>
-        
+
         {% if propiedades %}
-        <div class="carousel">
-            {% for propiedad in propiedades %}
-            <a href="{% url 'properties:property_detail' propiedad.pk %}" class="property-card">
-                {% if propiedad.imagen_principal %}
-                <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.nombre }}" class="property-card-image">
-                {% else %}
-                <div class="property-card-image" style="display: flex; align-items: center; justify-content: center; color: var(--gris-medio);">
-                    🏠 Sin imagen
+        <div class="carousel-container" id="carouselContainer" style="position: relative; width: 100%; height: 500px; overflow: hidden; margin-bottom: 2rem;">
+            <!-- Indicador de progreso -->
+            <div id="carouselIndicator" style="position: absolute; top: 0; left: 0; height: 5px; background-color: var(--naranja); z-index: 60; width: 0;"></div>
+
+            <!-- Cover inicial -->
+            <div id="carouselCover" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--blanco); z-index: 100; pointer-events: none;"></div>
+
+            <!-- Contenedor de tarjetas (se genera con JS) -->
+            <div id="carouselCards"></div>
+
+            <!-- Detalles de la tarjeta activa (dos versiones para alternar) -->
+            <div id="details-even" style="position: absolute; top: 240px; left: 60px; z-index: 22; color: var(--blanco); max-width: 500px; opacity: 0;">
+                <div style="height: 46px; overflow: hidden; position: relative; margin-bottom: 1rem;">
+                    <div class="place-text" style="padding-top: 16px; font-size: 1.125rem; font-weight: 500;"></div>
                 </div>
-                {% endif %}
-                
-                <div class="property-card-content">
-                    <h3 class="property-card-title">{{ propiedad.nombre }}</h3>
-                    <p class="property-card-location">📍 {{ propiedad.ubicacion }}</p>
-                    
-                    <div class="property-card-details">
-                        <span>📐 {{ propiedad.metros_cuadrados }} m²</span>
-                        <span>🏠 {{ propiedad.get_tipo_inmueble_display }}</span>
-                    </div>
-                    
-                    <p class="property-card-price">${{ propiedad.precio|floatformat:0|intcomma }} MXN</p>
+                <div style="height: 100px; overflow: hidden; margin-bottom: 0.25rem;">
+                    <div class="title title-1" style="font-weight: 700; font-size: 4rem; line-height: 1;"></div>
                 </div>
-            </a>
-            {% endfor %}
+                <div style="height: 100px; overflow: hidden; margin-bottom: 0.25rem;">
+                    <div class="title title-2" style="font-weight: 700; font-size: 4rem; line-height: 1;"></div>
+                </div>
+                <div class="desc" style="margin-top: 1rem; font-size: 1rem; line-height: 1.6; opacity: 0.95;"></div>
+                <div style="margin-top: 1.5rem;">
+                    <a href="#" class="btn btn-primary view-property-btn">Ver Propiedad</a>
+                </div>
+            </div>
+
+            <div id="details-odd" style="position: absolute; top: 240px; left: 60px; z-index: 12; color: var(--blanco); max-width: 500px; opacity: 0;">
+                <div style="height: 46px; overflow: hidden; position: relative; margin-bottom: 1rem;">
+                    <div class="place-text" style="padding-top: 16px; font-size: 1.125rem; font-weight: 500;"></div>
+                </div>
+                <div style="height: 100px; overflow: hidden; margin-bottom: 0.25rem;">
+                    <div class="title title-1" style="font-weight: 700; font-size: 4rem; line-height: 1;"></div>
+                </div>
+                <div style="height: 100px; overflow: hidden; margin-bottom: 0.25rem;">
+                    <div class="title title-2" style="font-weight: 700; font-size: 4rem; line-height: 1;"></div>
+                </div>
+                <div class="desc" style="margin-top: 1rem; font-size: 1rem; line-height: 1.6; opacity: 0.95;"></div>
+                <div style="margin-top: 1.5rem;">
+                    <a href="#" class="btn btn-primary view-property-btn">Ver Propiedad</a>
+                </div>
+            </div>
+
+            <!-- Controles de paginación -->
+            <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; z-index: 60; opacity: 0;" id="carouselPagination">
+                <button id="carouselPrev" style="width: 50px; height: 50px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.3); display: grid; place-items: center; cursor: pointer; background: transparent; color: rgba(255,255,255,0.8);">
+                    ←
+                </button>
+                <div style="width: 300px; height: 3px; background-color: rgba(255,255,255,0.2); border-radius: 99px; overflow: hidden;">
+                    <div id="carouselProgressBar" style="height: 100%; background-color: var(--naranja); width: 0%;"></div>
+                </div>
+                <div id="carouselSlideNumber" style="width: 50px; height: 50px; display: grid; place-items: center; font-size: 2rem; font-weight: bold; color: var(--blanco); overflow: hidden; position: relative;"></div>
+                <button id="carouselNext" style="width: 50px; height: 50px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.3); display: grid; place-items: center; cursor: pointer; background: transparent; color: rgba(255,255,255,0.8);">
+                    →
+                </button>
+            </div>
         </div>
-        
-        <div style="text-align: center;">
+
+        <div style="text-align: center; margin-top: 2rem;">
             <a href="{% url 'properties:property_list' %}" class="btn btn-secondary">Ver Todas las Propiedades</a>
         </div>
         {% else %}
@@ -261,7 +284,7 @@
         </div>
         {% endif %}
     </section>
-    
+
     <!-- Características -->
     <section class="caracteristicas">
         <h2>¿Por qué elegir Habitatum?</h2>
@@ -271,19 +294,19 @@
                 <h3>Propiedades de Calidad</h3>
                 <p>Seleccionamos cuidadosamente cada propiedad para ofrecerte las mejores opciones del mercado.</p>
             </div>
-            
+
             <div class="caracteristica-item">
                 <div class="caracteristica-icon">💰</div>
                 <h3>Asesoría Crediticia</h3>
                 <p>Te ayudamos a encontrar el mejor crédito hipotecario según tus necesidades e ingresos.</p>
             </div>
-            
+
             <div class="caracteristica-item">
                 <div class="caracteristica-icon">🤝</div>
                 <h3>Acompañamiento Total</h3>
                 <p>Desde la primera visita hasta la firma de escrituras, estaremos contigo en cada paso.</p>
             </div>
-            
+
             <div class="caracteristica-item">
                 <div class="caracteristica-icon">⚡</div>
                 <h3>Proceso Rápido</h3>
@@ -291,7 +314,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- CTA Final -->
     <section class="cta-section">
         <h2>¿Listo para encontrar tu hogar?</h2>
@@ -299,16 +322,261 @@
         <a href="{% url 'properties:property_list' %}" class="btn btn-primary" style="background-color: var(--naranja);">Explorar Propiedades</a>
     </section>
 </div>
+
+<!-- Datos JSON para el carousel -->
+<script id="propiedades-data" type="application/json">
+[
+    {% for propiedad in propiedades %}
+    {
+        "id": {{ propiedad.pk }},
+        "nombre": "{{ propiedad.nombre|escapejs }}",
+        "ubicacion": "{{ propiedad.ubicacion|escapejs }}",
+        "precio": "{{ propiedad.precio|floatformat:0|intcomma }}",
+        "metros": "{{ propiedad.metros_cuadrados }}",
+        "tipo": "{{ propiedad.get_tipo_inmueble_display|escapejs }}",
+        {% if propiedad.imagen_principal %}
+        "imagen": "{{ propiedad.imagen_principal.url }}",
+        {% else %}
+        "imagen": "",
+        {% endif %}
+        "url": "{% url 'properties:property_detail' propiedad.pk %}",
+        "descripcion": "{{ propiedad.descripcion|escapejs|truncatewords:20 }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Motion.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.js"></script>
+
 <script>
-    // Script para formatear números con comas (si es necesario)
-    document.addEventListener('DOMContentLoaded', function() {
-        const precios = document.querySelectorAll('.property-card-price');
-        precios.forEach(function(precio) {
-            // Aquí podrías agregar lógica adicional si es necesario
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar que Motion.js se haya cargado
+    if (typeof Motion === 'undefined') {
+        console.error('Motion.js no se cargó correctamente');
+        return;
+    }
+
+    const { animate, stagger } = Motion;
+
+    const propiedadesDataEl = document.getElementById('propiedades-data');
+    if (!propiedadesDataEl) return;
+
+    let data;
+    try {
+        data = JSON.parse(propiedadesDataEl.textContent);
+    } catch (e) {
+        console.error('Error al parsear datos JSON:', e);
+        return;
+    }
+
+    if (data.length === 0) return;
+
+    let order = data.map((_, i) => i);
+    let detailsEven = true;
+    let isAnimating = false;
+    let autoPlayInterval = null;
+
+    const cardWidth = 200;
+    const cardHeight = 300;
+    const gap = 40;
+    const numberSize = 50;
+    const ease = [0.4, 0, 0.2, 1];
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    let offsetTop = height - 430;
+    let offsetLeft = width - 830;
+
+    if (width <= 768) {
+        offsetTop = height - 500;
+        offsetLeft = 50;
+    }
+
+    // Generar HTML
+    const cardsHTML = data.map((prop, index) => {
+        const imageStyle = prop.imagen ? `background-image: url(${prop.imagen})` : 'background-color: var(--beige)';
+        return `<div class="carousel-card" id="card-${index}" style="${imageStyle}">
+            <div class="carousel-card-content">
+                <div class="carousel-card-place">📍 ${prop.ubicacion}</div>
+                <div class="carousel-card-title">${prop.nombre}</div>
+                <div class="carousel-card-price">$${prop.precio} MXN</div>
+            </div>
+        </div>`;
+    }).join('');
+
+    const numbersHTML = data.map((_, index) =>
+        `<div class="number-item" id="slide-number-${index}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; place-items: center;">${index + 1}</div>`
+    ).join('');
+
+    document.getElementById('carouselCards').innerHTML = cardsHTML;
+    document.getElementById('carouselSlideNumber').innerHTML = numbersHTML;
+
+    function getCard(index) { return document.getElementById(`card-${index}`); }
+    function getSlideNumber(index) { return document.getElementById(`slide-number-${index}`); }
+
+    function updateDetails(index, selector) {
+        const prop = data[index];
+        const details = document.querySelector(selector);
+        const nombreParts = prop.nombre.split(' ');
+
+        details.querySelector('.place-text').textContent = prop.ubicacion;
+        details.querySelector('.title-1').textContent = nombreParts[0] || '';
+        details.querySelector('.title-2').textContent = nombreParts.slice(1).join(' ') || '';
+        details.querySelector('.desc').textContent = prop.descripcion || `${prop.metros} m² - ${prop.tipo}`;
+        details.querySelector('.view-property-btn').href = prop.url;
+    }
+
+    function initPositions() {
+        const [active, ...rest] = order;
+        const detailsActive = detailsEven ? '#details-even' : '#details-odd';
+
+        const pagination = document.getElementById('carouselPagination');
+        pagination.style.opacity = '0';
+        pagination.style.transform = 'translateX(-50%) translateY(50px)';
+
+        const activeCard = getCard(active);
+        activeCard.style.left = '0';
+        activeCard.style.top = '0';
+        activeCard.style.width = '100%';
+        activeCard.style.height = '500px';
+        activeCard.style.zIndex = '20';
+        activeCard.style.borderRadius = '0';
+
+        rest.forEach((i, index) => {
+            const card = getCard(i);
+            card.style.left = `${offsetLeft + index * (cardWidth + gap)}px`;
+            card.style.top = `${offsetTop}px`;
+            card.style.width = `${cardWidth}px`;
+            card.style.height = `${cardHeight}px`;
+            card.style.zIndex = '30';
+
+            getSlideNumber(i).style.transform = `translateY(${(index + 1) * numberSize}px)`;
+        });
+
+        getSlideNumber(active).style.transform = 'translateY(0)';
+
+        updateDetails(active, detailsActive);
+
+        document.getElementById('carouselProgressBar').style.width = `${(100 / data.length) * (active + 1)}%`;
+
+        const cover = document.getElementById('carouselCover');
+        animate(cover, { x: [0, width + 400] }, { duration: 1, delay: 0.5, easing: ease }).finished.then(() => {
+            cover.style.display = 'none';
+            animate(pagination, { opacity: [0, 1], y: [50, 0] }, { duration: 0.6, easing: ease });
+            animate(document.querySelector(detailsActive), { opacity: [0, 1], x: [-200, 0] }, { duration: 0.8, easing: ease });
+            startAutoPlay();
+        }).catch(err => {
+            console.error('Error en animación inicial:', err);
+            cover.style.display = 'none';
+            pagination.style.opacity = '1';
+            document.querySelector(detailsActive).style.opacity = '1';
+            startAutoPlay();
+        });
+    }
+
+    async function nextSlide() {
+        if (isAnimating || data.length <= 1) return;
+        isAnimating = true;
+
+        order.push(order.shift());
+        detailsEven = !detailsEven;
+
+        const [active, ...rest] = order;
+        const prv = rest[rest.length - 1];
+        const detailsActive = detailsEven ? '#details-even' : '#details-odd';
+        const detailsInactive = detailsEven ? '#details-odd' : '#details-even';
+
+        updateDetails(active, detailsActive);
+
+        document.querySelector(detailsActive).style.zIndex = '22';
+        document.querySelector(detailsInactive).style.zIndex = '12';
+
+        const activeCard = getCard(active);
+        const prvCard = getCard(prv);
+
+        prvCard.style.zIndex = '10';
+        activeCard.style.zIndex = '20';
+
+        try {
+            await animate(document.getElementById('carouselIndicator'), { width: ['0%', '100%'] }, { duration: 0.8, easing: ease }).finished;
+
+            animate(prvCard, { scale: [1, 1.5] }, { duration: 0.8, easing: ease });
+
+            await animate(activeCard, {
+                left: ['', '0px'],
+                top: ['', '0px'],
+                width: ['', '100%'],
+                height: ['', '500px'],
+                borderRadius: ['10px', '0px']
+            }, { duration: 0.8, easing: ease }).finished;
+
+            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
+            prvCard.style.left = `${xNew}px`;
+            prvCard.style.top = `${offsetTop}px`;
+            prvCard.style.width = `${cardWidth}px`;
+            prvCard.style.height = `${cardHeight}px`;
+            prvCard.style.zIndex = '30';
+            prvCard.style.borderRadius = '10px';
+            prvCard.style.transform = 'scale(1)';
+
+            rest.forEach((i, index) => {
+                if (i !== prv) {
+                    const card = getCard(i);
+                    const xPos = offsetLeft + index * (cardWidth + gap);
+                    animate(card, { left: [card.style.left, `${xPos}px`] }, { duration: 0.6, delay: 0.1 * (index + 1), easing: ease });
+                }
+            });
+
+            getSlideNumber(active).style.transform = 'translateY(0)';
+            getSlideNumber(prv).style.transform = `translateY(${rest.length * numberSize}px)`;
+
+            animate(document.getElementById('carouselProgressBar'), { width: `${(100 / data.length) * (active + 1)}%` }, { duration: 0.6, easing: ease });
+
+            await animate(document.querySelector(detailsActive), { opacity: [0, 1], x: [-100, 0] }, { duration: 0.6, delay: 0.4, easing: ease }).finished;
+
+            document.querySelector(detailsInactive).style.opacity = '0';
+            document.getElementById('carouselIndicator').style.width = '0%';
+        } catch (err) {
+            console.error('Error en animación de slide:', err);
+        } finally {
+            isAnimating = false;
+        }
+    }
+
+    function startAutoPlay() {
+        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        autoPlayInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoPlay() {
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+        }
+    }
+
+    document.getElementById('carouselNext').addEventListener('click', () => {
+        stopAutoPlay();
+        nextSlide();
+        startAutoPlay();
+    });
+
+    const container = document.getElementById('carouselContainer');
+    container.addEventListener('mouseenter', stopAutoPlay);
+    container.addEventListener('mouseleave', startAutoPlay);
+
+    data.forEach((prop, index) => {
+        getCard(index).addEventListener('click', () => {
+            if (order[0] === index) {
+                window.location.href = prop.url;
+            }
         });
     });
+
+    initPositions();
+});
 </script>
 {% endblock %}
