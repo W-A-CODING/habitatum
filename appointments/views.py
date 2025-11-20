@@ -1,29 +1,115 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
+from datetime import date
 
-from .models import Appointment
+from .models import Appointment, AvailableDay
 from .forms import NormalAppointmentForm, PriorityAppointmentForm
 from properties.models import Property
 
 
+def verificar_disponibilidad_dia(fecha_cita, tipo_cita):
+    """
+    Verifica si un día específico está disponible para agendar citas del tipo especificado.
+    
+    Args:
+        fecha_cita: datetime object con la fecha de la cita
+        tipo_cita: str - 'normal' o 'prioritaria'
+        
+    Returns:
+        tuple: (bool, str) - (disponible, mensaje_error)
+    """
+    # Convertir a date si es datetime
+    if isinstance(fecha_cita, timezone.datetime):
+        fecha = fecha_cita.date()
+    else:
+        fecha = fecha_cita
+    
+    # Verificar que no sea un día pasado
+    if fecha < timezone.now().date():
+        return False, "No puedes agendar citas en días pasados."
+    
+    # Buscar si el día está configurado como disponible
+    try:
+        dia_disponible = AvailableDay.objects.get(
+            fecha_disponible=fecha,
+            tipo_cita=tipo_cita
+        )
+        
+        # Verificar si todavía hay capacidad
+        if not dia_disponible.esta_disponible():
+            citas_count = dia_disponible.obtener_citas_agendadas().count()
+            return False, f"Este día ya tiene {citas_count} citas agendadas y ha alcanzado su capacidad máxima de {dia_disponible.capacidad_maxima}. Por favor selecciona otro día."
+        
+        return True, "Día disponible"
+        
+    except AvailableDay.DoesNotExist:
+        tipo_texto = "citas normales" if tipo_cita == 'normal' else "citas prioritarias"
+        return False, f"Este día no está disponible para {tipo_texto}. Por favor selecciona otro día del calendario."
+
+
+def obtener_fechas_disponibles_mes(anio, mes, tipo_cita):
+    """
+    Obtiene todas las fechas disponibles de un mes específico para un tipo de cita.
+    
+    Args:
+        anio: int - año
+        mes: int - mes (1-12)
+        tipo_cita: str - 'normal' o 'prioritaria'
+        
+    Returns:
+        list: Lista de fechas disponibles (date objects)
+    """
+    dias_disponibles = AvailableDay.objects.filter(
+        fecha_disponible__year=anio,
+        fecha_disponible__month=mes,
+        tipo_cita=tipo_cita,
+        fecha_disponible__gte=timezone.now().date()  # Solo días futuros
+    )
+    
+    # Filtrar solo los que tienen capacidad
+    fechas = []
+    for dia in dias_disponibles:
+        if dia.esta_disponible():
+            fechas.append(dia.fecha_disponible)
+    
+    return fechas
+
+
+def obtener_fechas_disponibles_para_template(anio, mes, tipo_cita):
+    """
+    Prepara las fechas disponibles en un formato útil para el template.
+    
+    Args:
+        anio: int - año
+        mes: int - mes
+        tipo_cita: str - 'normal' o 'prioritaria'
+        
+    Returns:
+        dict: Diccionario con información de fechas disponibles
+    """
+    fechas = obtener_fechas_disponibles_mes(anio, mes, tipo_cita)
+    
+    # Convertir a lista de strings en formato ISO para uso en JavaScript
+    fechas_iso = [fecha.isoformat() for fecha in fechas]
+    
+    return {
+        'mes': mes,
+        'anio': anio,
+        'fechas': fechas,
+        'fechas_iso': fechas_iso,
+        'total': len(fechas)
+    }
+
+
 def create_normal_appointment_view(request, property_id):
     """
-    Vista para crear una cita normal.
+    Vista para crear una cita normal CON VALIDACIÓN DE DISPONIBILIDAD.
     
-    Una cita normal solo requiere:
-    - Nombre del cliente
-    - Email
-    - Teléfono
-    - Fecha deseada
-    
-    Proceso:
-    1. Verifica que la propiedad exista y esté visible
-    2. Muestra el formulario (GET) o procesa los datos (POST)
-    3. Guarda la cita en la base de datos
-    4. Envía email de notificación al administrador
-    5. Crea evento en Google Calendar
-    6. Redirige a página de confirmación
+    Ahora verifica que:
+    1. El día seleccionado esté marcado como disponible por el admin
+    2. Todavía haya capacidad en ese día
+    3. No sea un día del pasado
     """
     # Obtener la propiedad o mostrar 404
     propiedad = get_object_or_404(Property, pk=property_id, is_visible=True)
@@ -33,6 +119,25 @@ def create_normal_appointment_view(request, property_id):
         form = NormalAppointmentForm(request.POST)
         
         if form.is_valid():
+            # Obtener la fecha seleccionada
+            fecha_cita = form.cleaned_data['fecha_cita']
+            
+            # VALIDACIÓN CRÍTICA: Verificar disponibilidad
+            disponible, mensaje_error = verificar_disponibilidad_dia(fecha_cita, 'normal')
+            
+            if not disponible:
+                messages.error(request, mensaje_error)
+                # Recargar el formulario con el error
+                contexto = {
+                    'form': form,
+                    'propiedad': propiedad,
+                    'tipo_cita': 'normal',
+                    'titulo_pagina': f'Agendar Cita - {propiedad.nombre}',
+                    'fechas_disponibles': obtener_fechas_disponibles_para_template(timezone.now().year, timezone.now().month, 'normal')
+                }
+                return render(request, 'appointment_form.html', contexto)
+            
+            # Si llegamos aquí, el día está disponible
             # Crear la cita pero no guardarla todavía (commit=False)
             cita = form.save(commit=False)
             
@@ -50,14 +155,12 @@ def create_normal_appointment_view(request, property_id):
                 enviar_notificacion_nueva_cita(cita)
             except Exception as e:
                 print(f"Error al enviar email de notificación: {e}")
-                # No detenemos el proceso si falla el email
             
             # Crear evento en Google Calendar
             try:
                 crear_evento_google_calendar(cita)
             except Exception as e:
                 print(f"Error al crear evento en Google Calendar: {e}")
-                # No detenemos el proceso si falla Google Calendar
             
             # Mostrar mensaje de éxito
             messages.success(
@@ -79,11 +182,19 @@ def create_normal_appointment_view(request, property_id):
         # Mostrar formulario vacío (GET)
         form = NormalAppointmentForm()
     
+    # Obtener fechas disponibles para el calendario
+    fechas_disponibles = obtener_fechas_disponibles_para_template(
+        timezone.now().year, 
+        timezone.now().month, 
+        'normal'
+    )
+    
     contexto = {
         'form': form,
         'propiedad': propiedad,
         'tipo_cita': 'normal',
-        'titulo_pagina': f'Agendar Cita - {propiedad.nombre}'
+        'titulo_pagina': f'Agendar Cita - {propiedad.nombre}',
+        'fechas_disponibles': fechas_disponibles
     }
     
     return render(request, 'appointment_form.html', contexto)
@@ -91,21 +202,12 @@ def create_normal_appointment_view(request, property_id):
 
 def create_priority_appointment_view(request, property_id):
     """
-    Vista para crear una cita prioritaria.
+    Vista para crear una cita prioritaria CON VALIDACIÓN DE DISPONIBILIDAD.
     
-    Una cita prioritaria requiere datos adicionales:
-    - Nombre del cliente
-    - Email
-    - Teléfono
-    - Fecha deseada
-    - Ingresos mensuales
-    - Tipo de crédito deseado
-    
-    Este tipo de cita es para clientes que buscan asesoramiento crediticio
-    personalizado. El administrador verá estos datos adicionales en el
-    calendario para preparar mejor la cita.
-    
-    El proceso es el mismo que la cita normal, pero con más información.
+    Ahora verifica que:
+    1. El día seleccionado esté marcado como disponible por el admin
+    2. Todavía haya capacidad en ese día
+    3. No sea un día del pasado
     """
     # Obtener la propiedad o mostrar 404
     propiedad = get_object_or_404(Property, pk=property_id, is_visible=True)
@@ -115,6 +217,25 @@ def create_priority_appointment_view(request, property_id):
         form = PriorityAppointmentForm(request.POST)
         
         if form.is_valid():
+            # Obtener la fecha seleccionada
+            fecha_cita = form.cleaned_data['fecha_cita']
+            
+            # VALIDACIÓN CRÍTICA: Verificar disponibilidad
+            disponible, mensaje_error = verificar_disponibilidad_dia(fecha_cita, 'prioritaria')
+            
+            if not disponible:
+                messages.error(request, mensaje_error)
+                # Recargar el formulario con el error
+                contexto = {
+                    'form': form,
+                    'propiedad': propiedad,
+                    'tipo_cita': 'prioritaria',
+                    'titulo_pagina': f'Agendar Cita Prioritaria - {propiedad.nombre}',
+                    'fechas_disponibles': obtener_fechas_disponibles_para_template(timezone.now().year, timezone.now().month, 'prioritaria')
+                }
+                return render(request, 'appointment_form.html', contexto)
+            
+            # Si llegamos aquí, el día está disponible
             # Crear la cita pero no guardarla todavía
             cita = form.save(commit=False)
             
@@ -128,14 +249,12 @@ def create_priority_appointment_view(request, property_id):
             cita.save()
             
             # Enviar email de notificación al administrador
-            # En este caso el email incluirá los datos financieros
             try:
                 enviar_notificacion_nueva_cita(cita)
             except Exception as e:
                 print(f"Error al enviar email de notificación: {e}")
             
             # Crear evento en Google Calendar
-            # El título del evento indicará que es cita prioritaria
             try:
                 crear_evento_google_calendar(cita)
             except Exception as e:
@@ -161,11 +280,19 @@ def create_priority_appointment_view(request, property_id):
         # Mostrar formulario vacío (GET)
         form = PriorityAppointmentForm()
     
+    # Obtener fechas disponibles para el calendario
+    fechas_disponibles = obtener_fechas_disponibles_para_template(
+        timezone.now().year, 
+        timezone.now().month, 
+        'prioritaria'
+    )
+    
     contexto = {
         'form': form,
         'propiedad': propiedad,
         'tipo_cita': 'prioritaria',
-        'titulo_pagina': f'Agendar Cita Prioritaria - {propiedad.nombre}'
+        'titulo_pagina': f'Agendar Cita Prioritaria - {propiedad.nombre}',
+        'fechas_disponibles': fechas_disponibles
     }
     
     return render(request, 'appointment_form.html', contexto)

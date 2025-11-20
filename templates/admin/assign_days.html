@@ -8,6 +8,7 @@
 
 {% block extra_css %}
 <style>
+    /* Estilos anteriores más nuevos estilos */
     .assign-header {
         background-color: var(--blanco);
         padding: 1.5rem;
@@ -41,11 +42,6 @@
         color: var(--blanco);
     }
     
-    .assign-description {
-        color: var(--gris-medio);
-        line-height: 1.6;
-    }
-    
     .calendar-navigation {
         display: flex;
         justify-content: space-between;
@@ -71,10 +67,39 @@
         background-color: var(--azul-oscuro);
     }
     
-    .current-month {
-        font-size: 1.5rem;
-        font-weight: 700;
+    .capacity-control {
+        background-color: var(--beige);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .capacity-control h4 {
         color: var(--azul-oscuro);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+    
+    .capacity-input-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .capacity-input-group label {
+        color: var(--azul-oscuro);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .capacity-input-group input {
+        width: 100px;
+        padding: 0.5rem;
+        border: 2px solid var(--azul-medio);
+        border-radius: 4px;
+        font-size: 1rem;
+        text-align: center;
     }
     
     .calendar-container {
@@ -133,9 +158,54 @@
         opacity: 0.5;
     }
     
+    .calendar-day-cell.selected {
+        background-color: #d4edda;
+        border-color: #28a745;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    }
+    
     .calendar-day-cell.has-appointments {
         background-color: #fff3cd;
         border-color: #ffc107;
+    }
+    
+    .calendar-day-cell.selected.has-appointments {
+        background: linear-gradient(135deg, #d4edda 0%, #fff3cd 100%);
+    }
+    
+    /* Checkbox oculto pero funcional */
+    .day-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    /* Indicador visual de checkbox */
+    .day-checkbox-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--azul-medio);
+        border-radius: 4px;
+        background-color: var(--blanco);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    
+    .day-checkbox:checked ~ .day-checkbox-indicator {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .day-checkbox:checked ~ .day-checkbox-indicator::after {
+        content: '✓';
+        color: var(--blanco);
+        font-weight: bold;
     }
     
     .day-number {
@@ -146,7 +216,7 @@
     }
     
     .day-info {
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         color: var(--gris-medio);
         text-align: center;
     }
@@ -162,14 +232,29 @@
         margin-top: 0.25rem;
     }
     
-    .calendar-legend {
+    .capacity-badge {
+        display: inline-block;
+        background-color: var(--azul-claro);
+        color: var(--blanco);
+        padding: 0.2rem 0.4rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+    
+    .capacity-badge.full {
+        background-color: #dc3545;
+    }
+    
+    .legend {
         background-color: var(--beige);
         padding: 1.5rem;
         border-radius: 8px;
         margin-bottom: 2rem;
     }
     
-    .calendar-legend h4 {
+    .legend h4 {
         color: var(--azul-oscuro);
         margin-bottom: 1rem;
         font-size: 1rem;
@@ -199,6 +284,11 @@
         border-color: var(--beige);
     }
     
+    .legend-box.selected {
+        background-color: #d4edda;
+        border-color: #28a745;
+    }
+    
     .legend-box.with-appointments {
         background-color: #fff3cd;
         border-color: #ffc107;
@@ -209,22 +299,28 @@
         border-color: var(--beige);
     }
     
-    .legend-text {
-        color: var(--gris-medio);
-        font-size: 0.875rem;
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
     }
     
-    .info-note {
-        background-color: #d1ecf1;
-        border: 1px solid #17a2b8;
-        border-radius: 8px;
+    .bulk-actions {
+        background-color: var(--beige);
         padding: 1rem;
-        color: #0c5460;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
     }
     
-    .info-note strong {
-        display: block;
-        margin-bottom: 0.5rem;
+    .btn-bulk {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
     }
     
     @media (max-width: 768px) {
@@ -245,13 +341,18 @@
             font-size: 1rem;
         }
         
-        .day-info {
-            font-size: 0.65rem;
-        }
-        
         .legend-items {
             flex-direction: column;
             gap: 0.75rem;
+        }
+        
+        .bulk-actions {
+            flex-direction: column;
+        }
+        
+        .capacity-input-group {
+            flex-direction: column;
+            align-items: flex-start;
         }
     }
 </style>
@@ -272,11 +373,11 @@
             {% endif %}
         </span>
     </div>
-    <p class="assign-description">
+    <p style="color: var(--gris-medio);">
         {% if tipo_cita == 'normal' %}
-        Visualiza los días con citas normales agendadas. Los clientes pueden agendar visitas estándar a las propiedades.
+        Selecciona los días disponibles para citas normales. Marca las casillas de los días en que deseas aceptar citas.
         {% else %}
-        Visualiza los días con citas prioritarias agendadas. Estas citas incluyen asesoría crediticia y requieren más tiempo.
+        Selecciona los días disponibles para citas prioritarias con asesoría crediticia. Marca las casillas de los días específicos.
         {% endif %}
     </p>
 </div>
@@ -284,72 +385,196 @@
 <!-- Navegación del Calendario -->
 <div class="calendar-navigation">
     <a href="?mes={{ mes_anterior }}&anio={{ anio_anterior }}" class="nav-button">← Mes Anterior</a>
-    <h3 class="current-month">{{ nombre_mes }} {{ anio_actual }}</h3>
+    <h3 style="color: var(--azul-oscuro); font-size: 1.5rem; font-weight: 700;">{{ nombre_mes }} {{ anio_actual }}</h3>
     <a href="?mes={{ mes_siguiente }}&anio={{ anio_siguiente }}" class="nav-button">Mes Siguiente →</a>
 </div>
 
-<!-- Calendario -->
-<div class="calendar-container">
-    <!-- Headers de días -->
-    <div class="calendar-days-header">
-        <div class="day-header">Lun</div>
-        <div class="day-header">Mar</div>
-        <div class="day-header">Mié</div>
-        <div class="day-header">Jue</div>
-        <div class="day-header">Vie</div>
-        <div class="day-header">Sáb</div>
-        <div class="day-header">Dom</div>
+<form method="post" id="assignDaysForm">
+    {% csrf_token %}
+    
+    <!-- Control de Capacidad -->
+    <div class="capacity-control">
+        <h4>⚙️ Configuración de Capacidad</h4>
+        <div class="capacity-input-group">
+            <label for="capacidad_maxima">Máximo de citas por día:</label>
+            <input type="number" id="capacidad_maxima" name="capacidad_maxima" 
+                   min="1" max="20" value="{{ capacidad_actual }}" required>
+            <span style="color: var(--gris-medio); font-size: 0.875rem;">
+                Esta capacidad se aplicará a todos los días seleccionados
+            </span>
+        </div>
     </div>
     
-    <!-- Grid de días -->
-    <div class="calendar-days-grid">
-        {% for dia in dias_del_mes %}
-        <div class="calendar-day-cell {% if dia.es_pasado %}disabled{% endif %} {% if dia.citas > 0 %}has-appointments{% endif %}">
-            <span class="day-number">{{ dia.numero }}</span>
-            <span class="day-info">{{ dia.nombre_dia }}</span>
-            
-            {% if dia.citas > 0 %}
-            <span class="appointments-count">
-                {{ dia.citas }} cita{{ dia.citas|pluralize }}
-            </span>
-            {% endif %}
-        </div>
-        {% endfor %}
+    <!-- Acciones Masivas -->
+    <div class="bulk-actions">
+        <button type="button" class="btn btn-secondary btn-bulk" onclick="seleccionarTodos()">
+            ✓ Seleccionar Todos
+        </button>
+        <button type="button" class="btn btn-secondary btn-bulk" onclick="deseleccionarTodos()">
+            ✗ Deseleccionar Todos
+        </button>
+        <button type="button" class="btn btn-secondary btn-bulk" onclick="seleccionarDiasSemana()">
+            📅 Solo Días de Semana
+        </button>
     </div>
-</div>
-
-<!-- Leyenda -->
-<div class="calendar-legend">
-    <h4>📋 Leyenda</h4>
-    <div class="legend-items">
-        <div class="legend-item">
-            <div class="legend-box normal"></div>
-            <span class="legend-text">Sin citas agendadas</span>
+    
+    <!-- Calendario -->
+    <div class="calendar-container">
+        <!-- Headers de días -->
+        <div class="calendar-days-header">
+            <div class="day-header">Lun</div>
+            <div class="day-header">Mar</div>
+            <div class="day-header">Mié</div>
+            <div class="day-header">Jue</div>
+            <div class="day-header">Vie</div>
+            <div class="day-header">Sáb</div>
+            <div class="day-header">Dom</div>
         </div>
-        <div class="legend-item">
-            <div class="legend-box with-appointments"></div>
-            <span class="legend-text">Con citas agendadas</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-box disabled"></div>
-            <span class="legend-text">Día pasado (no disponible)</span>
+        
+        <!-- Grid de días -->
+        <div class="calendar-days-grid">
+            {% for dia in dias_del_mes %}
+            <label class="calendar-day-cell 
+                {% if dia.es_pasado %}disabled{% endif %}
+                {% if dia.esta_disponible %}selected{% endif %}
+                {% if dia.citas > 0 %}has-appointments{% endif %}"
+                {% if dia.es_pasado %}style="pointer-events: none;"{% endif %}>
+                
+                <input type="checkbox" 
+                       class="day-checkbox" 
+                       name="dias_disponibles" 
+                       value="{{ dia.numero }}"
+                       {% if dia.esta_disponible %}checked{% endif %}
+                       {% if dia.es_pasado %}disabled{% endif %}
+                       data-dia="{{ dia.numero }}"
+                       data-weekday="{{ dia.nombre_dia }}">
+                
+                <span class="day-checkbox-indicator"></span>
+                
+                <span class="day-number">{{ dia.numero }}</span>
+                <span class="day-info">{{ dia.nombre_dia }}</span>
+                
+                {% if dia.citas > 0 %}
+                <span class="appointments-count">
+                    {{ dia.citas }} cita{{ dia.citas|pluralize }}
+                </span>
+                {% endif %}
+                
+                {% if dia.capacidad_info %}
+                <span class="capacity-badge {% if not dia.capacidad_info.esta_disponible %}full{% endif %}">
+                    {{ dia.capacidad_info.capacidad_disponible }}/{{ dia.capacidad_info.capacidad_maxima }}
+                </span>
+                {% endif %}
+            </label>
+            {% endfor %}
         </div>
     </div>
-</div>
+    
+    <!-- Leyenda -->
+    <div class="legend">
+        <h4>📋 Leyenda</h4>
+        <div class="legend-items">
+            <div class="legend-item">
+                <div class="legend-box normal"></div>
+                <span style="color: var(--gris-medio); font-size: 0.875rem;">Día no disponible</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box selected"></div>
+                <span style="color: var(--gris-medio); font-size: 0.875rem;">Día disponible (seleccionado)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box with-appointments"></div>
+                <span style="color: var(--gris-medio); font-size: 0.875rem;">Día con citas agendadas</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box disabled"></div>
+                <span style="color: var(--gris-medio); font-size: 0.875rem;">Día pasado (no editable)</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botones de Acción -->
+    <div class="action-buttons">
+        <button type="submit" class="btn btn-success">
+            💾 Guardar Cambios
+        </button>
+        <a href="{% url 'dashboard:assign_days' %}" class="btn btn-secondary">
+            ← Volver al Menú
+        </a>
+    </div>
+</form>
 
-<!-- Nota Informativa -->
-<div class="info-note">
-    <strong>💡 Nota:</strong>
-    Este calendario muestra de forma visual los días que tienen citas agendadas de tipo 
-    {% if tipo_cita == 'normal' %}normal{% else %}prioritaria{% endif %}. 
-    Puedes ver las citas específicas de cada día desde el 
-    <a href="{% url 'dashboard:calendar' %}" style="color: #0c5460; font-weight: 600;">calendario principal</a>.
-</div>
+<script>
+// Función para seleccionar todos los días disponibles
+function seleccionarTodos() {
+    const checkboxes = document.querySelectorAll('.day-checkbox:not([disabled])');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        checkbox.closest('.calendar-day-cell').classList.add('selected');
+    });
+}
 
-<!-- Botón de regreso -->
-<div style="text-align: center; margin-top: 2rem;">
-    <a href="{% url 'dashboard:assign_days' %}" class="btn btn-secondary">
-        ← Volver al Menú de Asignación
-    </a>
-</div>
+// Función para deseleccionar todos los días
+function deseleccionarTodos() {
+    const checkboxes = document.querySelectorAll('.day-checkbox:not([disabled])');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.closest('.calendar-day-cell').classList.remove('selected');
+    });
+}
+
+// Función para seleccionar solo días de semana (Lun-Vie)
+function seleccionarDiasSemana() {
+    const checkboxes = document.querySelectorAll('.day-checkbox:not([disabled])');
+    checkboxes.forEach(checkbox => {
+        const weekday = checkbox.getAttribute('data-weekday');
+        if (weekday !== 'Sáb' && weekday !== 'Dom') {
+            checkbox.checked = true;
+            checkbox.closest('.calendar-day-cell').classList.add('selected');
+        } else {
+            checkbox.checked = false;
+            checkbox.closest('.calendar-day-cell').classList.remove('selected');
+        }
+    });
+}
+
+// Actualizar visual al hacer click en checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.day-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const cell = this.closest('.calendar-day-cell');
+            if (this.checked) {
+                cell.classList.add('selected');
+            } else {
+                cell.classList.remove('selected');
+            }
+        });
+    });
+    
+    // Confirmación antes de enviar
+    const form = document.getElementById('assignDaysForm');
+    form.addEventListener('submit', function(e) {
+        const selectedDays = document.querySelectorAll('.day-checkbox:checked').length;
+        const capacity = document.getElementById('capacidad_maxima').value;
+        
+        if (selectedDays === 0) {
+            e.preventDefault();
+            alert('⚠️ No has seleccionado ningún día. Por favor selecciona al menos un día disponible.');
+            return false;
+        }
+        
+        const confirmMessage = `¿Confirmar cambios?\n\n` +
+            `📅 Días seleccionados: ${selectedDays}\n` +
+            `👥 Capacidad por día: ${capacity} cita(s)\n\n` +
+            `Esto actualizará la disponibilidad para {{ nombre_mes }} {{ anio_actual }}.`;
+        
+        if (!confirm(confirmMessage)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
 {% endblock %}

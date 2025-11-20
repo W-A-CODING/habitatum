@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count, Q
-from django.http import HttpResponse
-from datetime import datetime, timedelta
+from django.http import HttpResponse, JsonResponse
+from datetime import datetime, timedelta, date
 import calendar
 
-from appointments.models import Appointment
+from appointments.models import Appointment, AvailableDay
 from properties.models import Property, PropertyImage
 from properties.forms import PropertyForm
 
@@ -545,7 +545,7 @@ def property_delete_view(request, pk):
 @login_required(login_url='dashboard:login')
 def assign_days_view(request):
     """
-    Vista del menú principal de asignación de días.
+    Vista del menú principal de asignación de días disponibles.
     
     Muestra dos opciones:
     1. Asignar días para citas normales
@@ -571,10 +571,9 @@ def assign_normal_days_view(request):
     - Marcar/desmarcar días como disponibles para citas normales
     - Navegar entre meses
     - Ver visualmente qué días ya están ocupados con citas
+    - Establecer capacidad máxima de citas por día
     
-    Los días se guardan en una tabla auxiliar o como configuración.
-    NOTA: La implementación actual usa un sistema simplificado.
-    En producción se recomienda crear un modelo AvailableDay.
+    Los días se guardan en la tabla AvailableDay de la base de datos.
     """
     # Nombres de meses en español
     nombres_meses = [
@@ -611,15 +610,82 @@ def assign_normal_days_view(request):
     
     # Procesar formulario si se marcaron/desmarcaron días
     if request.method == 'POST':
+        # Obtener días seleccionados del formulario
         dias_seleccionados = request.POST.getlist('dias_disponibles')
+        capacidad_maxima = int(request.POST.get('capacidad_maxima', 3))
+        
+        # Convertir a fechas
+        fechas_seleccionadas = []
+        for dia_str in dias_seleccionados:
+            try:
+                dia_num = int(dia_str)
+                fecha = date(anio_actual, mes_actual, dia_num)
+                fechas_seleccionadas.append(fecha)
+            except (ValueError, TypeError):
+                continue
+        
+        # Obtener días disponibles existentes para este mes y tipo
+        dias_existentes = AvailableDay.objects.filter(
+            fecha_disponible__year=anio_actual,
+            fecha_disponible__month=mes_actual,
+            tipo_cita='normal'
+        )
+        
+        fechas_existentes = set(dias_existentes.values_list('fecha_disponible', flat=True))
+        fechas_nuevas = set(fechas_seleccionadas)
+        
+        # Días a eliminar (estaban marcados pero ya no)
+        dias_a_eliminar = fechas_existentes - fechas_nuevas
+        if dias_a_eliminar:
+            AvailableDay.objects.filter(
+                fecha_disponible__in=dias_a_eliminar,
+                tipo_cita='normal'
+            ).delete()
+        
+        # Días a agregar (no estaban marcados pero ahora sí)
+        dias_a_agregar = fechas_nuevas - fechas_existentes
+        for fecha in dias_a_agregar:
+            # Verificar que no sea un día del pasado
+            if fecha >= timezone.now().date():
+                AvailableDay.objects.create(
+                    fecha_disponible=fecha,
+                    tipo_cita='normal',
+                    capacidad_maxima=capacidad_maxima
+                )
+        
+        # Actualizar capacidad de días existentes que siguen marcados
+        dias_a_actualizar = fechas_existentes & fechas_nuevas
+        if dias_a_actualizar:
+            AvailableDay.objects.filter(
+                fecha_disponible__in=dias_a_actualizar,
+                tipo_cita='normal'
+            ).update(capacidad_maxima=capacidad_maxima)
         
         messages.success(
             request,
-            f'Días disponibles actualizados para citas normales en {nombres_meses[mes_actual]} {anio_actual}.', extra_tags='alert alert-success'
+            f'Días disponibles actualizados para citas normales en {nombres_meses[mes_actual]} {anio_actual}.',
+            extra_tags='alert alert-success'
         )
         
         # Redirigir para evitar reenvío del formulario
         return redirect(f"{request.path}?mes={mes_actual}&anio={anio_actual}")
+    
+    # Obtener días disponibles de la BD para este mes
+    dias_disponibles_bd = AvailableDay.objects.filter(
+        fecha_disponible__year=anio_actual,
+        fecha_disponible__month=mes_actual,
+        tipo_cita='normal'
+    )
+    
+    # Crear diccionario de días disponibles
+    fechas_disponibles = {}
+    for dia_disp in dias_disponibles_bd:
+        fechas_disponibles[dia_disp.fecha_disponible.day] = {
+            'capacidad_maxima': dia_disp.capacidad_maxima,
+            'capacidad_disponible': dia_disp.obtener_capacidad_disponible(),
+            'citas_agendadas': dia_disp.obtener_citas_agendadas().count(),
+            'esta_disponible': dia_disp.esta_disponible()
+        }
     
     # Obtener citas normales existentes en este mes
     citas_normales_mes = Appointment.objects.filter(
@@ -640,15 +706,23 @@ def assign_normal_days_view(request):
     dias_del_mes = []
     for dia in range(1, 32):
         try:
-            fecha = datetime(anio_actual, mes_actual, dia)
-            dias_del_mes.append({
+            fecha = date(anio_actual, mes_actual, dia)
+            dia_info = {
                 'numero': dia,
                 'nombre_dia': ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][fecha.weekday()],
                 'citas': dias_con_citas.get(dia, 0),
-                'es_pasado': fecha.date() < timezone.now().date()
-            })
+                'es_pasado': fecha < timezone.now().date(),
+                'esta_disponible': dia in fechas_disponibles,
+                'capacidad_info': fechas_disponibles.get(dia, None)
+            }
+            dias_del_mes.append(dia_info)
         except ValueError:
             break
+    
+    # Obtener capacidad máxima actual (del primer día disponible o default)
+    capacidad_actual = 3
+    if dias_disponibles_bd.exists():
+        capacidad_actual = dias_disponibles_bd.first().capacidad_maxima
     
     contexto = {
         'dias_del_mes': dias_del_mes,
@@ -660,6 +734,7 @@ def assign_normal_days_view(request):
         'mes_siguiente': mes_siguiente,
         'anio_siguiente': anio_actual + 1 if mes_siguiente == 1 else anio_siguiente,
         'tipo_cita': 'normal',
+        'capacidad_actual': capacidad_actual,
         'titulo_pagina': f'Días Disponibles - Citas Normales - {nombres_meses[mes_actual]} {anio_actual}'
     }
     
@@ -679,6 +754,7 @@ def assign_priority_days_view(request):
     - Marcar/desmarcar días como disponibles para citas prioritarias
     - Navegar entre meses
     - Ver visualmente qué días ya están ocupados con citas prioritarias
+    - Establecer capacidad máxima de citas por día
     
     Nota: Los días disponibles para citas prioritarias pueden ser
     diferentes a los días de citas normales, permitiendo al administrador
@@ -719,14 +795,81 @@ def assign_priority_days_view(request):
     
     # Procesar formulario si se marcaron/desmarcaron días
     if request.method == 'POST':
+        # Obtener días seleccionados del formulario
         dias_seleccionados = request.POST.getlist('dias_disponibles')
+        capacidad_maxima = int(request.POST.get('capacidad_maxima', 2))
+        
+        # Convertir a fechas
+        fechas_seleccionadas = []
+        for dia_str in dias_seleccionados:
+            try:
+                dia_num = int(dia_str)
+                fecha = date(anio_actual, mes_actual, dia_num)
+                fechas_seleccionadas.append(fecha)
+            except (ValueError, TypeError):
+                continue
+        
+        # Obtener días disponibles existentes para este mes y tipo
+        dias_existentes = AvailableDay.objects.filter(
+            fecha_disponible__year=anio_actual,
+            fecha_disponible__month=mes_actual,
+            tipo_cita='prioritaria'
+        )
+        
+        fechas_existentes = set(dias_existentes.values_list('fecha_disponible', flat=True))
+        fechas_nuevas = set(fechas_seleccionadas)
+        
+        # Días a eliminar (estaban marcados pero ya no)
+        dias_a_eliminar = fechas_existentes - fechas_nuevas
+        if dias_a_eliminar:
+            AvailableDay.objects.filter(
+                fecha_disponible__in=dias_a_eliminar,
+                tipo_cita='prioritaria'
+            ).delete()
+        
+        # Días a agregar (no estaban marcados pero ahora sí)
+        dias_a_agregar = fechas_nuevas - fechas_existentes
+        for fecha in dias_a_agregar:
+            # Verificar que no sea un día del pasado
+            if fecha >= timezone.now().date():
+                AvailableDay.objects.create(
+                    fecha_disponible=fecha,
+                    tipo_cita='prioritaria',
+                    capacidad_maxima=capacidad_maxima
+                )
+        
+        # Actualizar capacidad de días existentes que siguen marcados
+        dias_a_actualizar = fechas_existentes & fechas_nuevas
+        if dias_a_actualizar:
+            AvailableDay.objects.filter(
+                fecha_disponible__in=dias_a_actualizar,
+                tipo_cita='prioritaria'
+            ).update(capacidad_maxima=capacidad_maxima)
         
         messages.success(
             request,
-            f'Días disponibles actualizados para citas prioritarias en {nombres_meses[mes_actual]} {anio_actual}.', extra_tags='alert alert-success'
+            f'Días disponibles actualizados para citas prioritarias en {nombres_meses[mes_actual]} {anio_actual}.',
+            extra_tags='alert alert-success'
         )
         
         return redirect(f"{request.path}?mes={mes_actual}&anio={anio_actual}")
+    
+    # Obtener días disponibles de la BD para este mes
+    dias_disponibles_bd = AvailableDay.objects.filter(
+        fecha_disponible__year=anio_actual,
+        fecha_disponible__month=mes_actual,
+        tipo_cita='prioritaria'
+    )
+    
+    # Crear diccionario de días disponibles
+    fechas_disponibles = {}
+    for dia_disp in dias_disponibles_bd:
+        fechas_disponibles[dia_disp.fecha_disponible.day] = {
+            'capacidad_maxima': dia_disp.capacidad_maxima,
+            'capacidad_disponible': dia_disp.obtener_capacidad_disponible(),
+            'citas_agendadas': dia_disp.obtener_citas_agendadas().count(),
+            'esta_disponible': dia_disp.esta_disponible()
+        }
     
     # Obtener citas prioritarias existentes en este mes
     citas_prioritarias_mes = Appointment.objects.filter(
@@ -747,15 +890,23 @@ def assign_priority_days_view(request):
     dias_del_mes = []
     for dia in range(1, 32):
         try:
-            fecha = datetime(anio_actual, mes_actual, dia)
-            dias_del_mes.append({
+            fecha = date(anio_actual, mes_actual, dia)
+            dia_info = {
                 'numero': dia,
                 'nombre_dia': ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][fecha.weekday()],
                 'citas': dias_con_citas.get(dia, 0),
-                'es_pasado': fecha.date() < timezone.now().date()
-            })
+                'es_pasado': fecha < timezone.now().date(),
+                'esta_disponible': dia in fechas_disponibles,
+                'capacidad_info': fechas_disponibles.get(dia, None)
+            }
+            dias_del_mes.append(dia_info)
         except ValueError:
             break
+    
+    # Obtener capacidad máxima actual (del primer día disponible o default)
+    capacidad_actual = 2
+    if dias_disponibles_bd.exists():
+        capacidad_actual = dias_disponibles_bd.first().capacidad_maxima
     
     contexto = {
         'dias_del_mes': dias_del_mes,
@@ -767,6 +918,7 @@ def assign_priority_days_view(request):
         'mes_siguiente': mes_siguiente,
         'anio_siguiente': anio_actual + 1 if mes_siguiente == 1 else anio_siguiente,
         'tipo_cita': 'prioritaria',
+        'capacidad_actual': capacidad_actual,
         'titulo_pagina': f'Días Disponibles - Citas Prioritarias - {nombres_meses[mes_actual]} {anio_actual}'
     }
     
