@@ -26,17 +26,27 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-du(&q)-a!a!i!sf+u5#vt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'habitatum.wacoding.org,localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    'habitatum.wacoding.org',
+    'www.habitatum.wacoding.org',
+    'localhost',
+    '127.0.0.1',
+]
 
 # Configuración de seguridad para HTTPS y proxy
 CSRF_TRUSTED_ORIGINS = [
     'https://habitatum.wacoding.org',
-    'http://habitatum.wacoding.org',  
+    'https://www.habitatum.wacoding.org',
 ]
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Agregar orígenes de desarrollo si DEBUG está activo
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS += [
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+    ]
 
-# Agregar esto para asegurar que se use el host correcto
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
