@@ -21,12 +21,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-du(&q)-a!a!i!sf+u5#vt-^97rz3ck4&qn-l7$qxi(ebvxbu6j'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-du(&q)-a!a!i!sf+u5#vt-^97rz3ck4&qn-l7$qxi(ebvxbu6j')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'habitatum.wacoding.org,localhost,127.0.0.1').split(',')
+
+# Configuración de seguridad para HTTPS y proxy
+CSRF_TRUSTED_ORIGINS = [
+    'https://habitatum.wacoding.org',
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Solo activar cookies seguras cuando DEBUG está desactivado
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+# Configuraciones adicionales de seguridad para producción
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 
 # Application definition
@@ -127,16 +145,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de Email (para notificaciones)
-# DESARROLLO - Comentar estas líneas en producción
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# PRODUCCIÓN - Descomentar estas líneas
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'habitatum3@gmail.com'
-EMAIL_HOST_PASSWORD = 'qspj cpgo osdk gnhv'  #contraseña faltante 
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'habitatum3@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'qspj cpgo osdk gnhv')
 
 # Email del administrador que recibirá las notificaciones
 ADMIN_EMAIL = 'habitatum3@gmail.com'
@@ -149,7 +163,6 @@ LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/calendario/'
 
 # Configuración de Google OAuth2
-# Estas credenciales se obtienen de Google Cloud Console
 GOOGLE_OAUTH_CREDENTIALS = {
     "web": {
         "client_id": "934681525343-agoqg2fbup7glsnmrtj9ivqglc9dp4cu.apps.googleusercontent.com",
@@ -157,6 +170,9 @@ GOOGLE_OAUTH_CREDENTIALS = {
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "redirect_uris": ["http://127.0.0.1:8000/integraciones/google/callback/"]
+        "redirect_uris": [
+            "http://127.0.0.1:8000/integraciones/google/callback/",
+            "https://habitatum.wacoding.org/integraciones/google/callback/"
+        ]
     }
 }
