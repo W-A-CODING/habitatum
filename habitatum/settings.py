@@ -31,9 +31,14 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'habitatum.wacoding.org,localhos
 # Configuración de seguridad para HTTPS y proxy
 CSRF_TRUSTED_ORIGINS = [
     'https://habitatum.wacoding.org',
+    'http://habitatum.wacoding.org',  
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Agregar esto para asegurar que se use el host correcto
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 # Solo activar cookies seguras cuando DEBUG está desactivado
 SESSION_COOKIE_SECURE = not DEBUG
